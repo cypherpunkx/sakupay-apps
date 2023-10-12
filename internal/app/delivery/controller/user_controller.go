@@ -2,7 +2,6 @@ package controller
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -28,8 +27,6 @@ func (ctr *UserController) Registration(c *gin.Context) {
 
 	payload.ID = common.GenerateUUID()
 
-	fmt.Println(payload)
-
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
 			"code":    http.StatusBadRequest,
@@ -46,7 +43,7 @@ func (ctr *UserController) Registration(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
 				Code:    http.StatusInternalServerError,
 				Status:  exception.StatusInternalServer,
-				Message: exception.ErrFailedCreate,
+				Message: exception.ErrFailedCreate.Error(),
 			})
 			return
 		}
@@ -56,6 +53,7 @@ func (ctr *UserController) Registration(c *gin.Context) {
 			Status:  exception.StatusInternalServer,
 			Message: err.Error(),
 		})
+		return
 	}
 
 	c.JSON(http.StatusCreated, dto.Response{
@@ -86,6 +84,7 @@ func (ctr *UserController) FindUser(c *gin.Context) {
 			Status:  exception.StatusInternalServer,
 			Message: err.Error(),
 		})
+		return
 	}
 
 	c.JSON(http.StatusOK, dto.Response{
@@ -98,6 +97,7 @@ func (ctr *UserController) FindUser(c *gin.Context) {
 
 func (ctr *UserController) FindUsers(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Code:    http.StatusBadRequest,
@@ -107,7 +107,8 @@ func (ctr *UserController) FindUsers(c *gin.Context) {
 		return
 	}
 
-	limit, err := strconv.Atoi(c.DefaultQuery("limit", "5"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Code:    http.StatusBadRequest,
@@ -124,28 +125,122 @@ func (ctr *UserController) FindUsers(c *gin.Context) {
 
 	data, paging, err := ctr.service.FindAllUser(paginationParam)
 
-	// if err != nil {
-	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
-	// 		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
-	// 			Code:    http.StatusInternalServerError,
-	// 			Status:  exception.StatusInternalServer,
-	// 			Message: gorm.ErrRecordNotFound.Error(),
-	// 		})
-	// 		return
-	// 	}
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
 
-	// 	c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
-	// 		Code:    http.StatusInternalServerError,
-	// 		Status:  exception.StatusInternalServer,
-	// 		Message: err.Error(),
-	// 	})
-	// }
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, dto.Response{
 		Code:    http.StatusOK,
 		Status:  exception.StatusSuccess,
-		Message: "Get User By ID",
+		Message: "Get All User",
 		Data:    data,
 		Paging:  *paging,
+	})
+}
+
+func (ctr *UserController) DeletedUser(c *gin.Context) {
+	id := c.Param("id")
+
+	data, err := ctr.service.RemoveUser(id)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
+
+		if errors.Is(err, exception.ErrFailedCreate) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: exception.ErrFailedCreate.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
+		Status:  exception.StatusSuccess,
+		Message: "Delete User By ID",
+		Data:    data,
+	})
+}
+
+func (ctr *UserController) UpdatingUser(c *gin.Context) {
+	id := c.Param("id")
+
+	payload := model.User{}
+
+	payload.ID = id
+
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
+			"code":    http.StatusBadRequest,
+			"status":  exception.StatusBadRequest,
+			"message": exception.FieldErrors(err),
+		})
+		return
+	}
+
+	data, err := ctr.service.UpdateUserByID(id, &payload)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
+
+		if errors.Is(err, exception.ErrFailedUpdate) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: exception.ErrFailedUpdate.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
+		Status:  exception.StatusSuccess,
+		Message: "Update User By ID",
+		Data:    data,
 	})
 }

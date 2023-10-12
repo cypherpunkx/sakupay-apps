@@ -23,6 +23,8 @@ func SetupRouter(router *gin.Engine) error {
 				users.GET("/", controller.FindUsers)
 				users.POST("/", controller.Registration)
 				users.GET("/:id", controller.FindUser)
+				users.PUT("/:id", controller.UpdatingUser)
+				users.DELETE("/:id", controller.DeletedUser)
 			}
 		}
 	}
