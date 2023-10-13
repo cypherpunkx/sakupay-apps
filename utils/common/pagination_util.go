@@ -50,8 +50,8 @@ func GetPaginationParams(params dto.PaginationParam) dto.PaginationQuery {
 
 // 21 / 5 === 4.xxx
 // ceil (pembulatan keatas) e.g 4.2 == 4 | 4.6 == 5
-func Paginate(page, limit, totalRows int) dto.Paging {
-	return dto.Paging{
+func Paginate(page, limit, totalRows int) *dto.Paging {
+	return &dto.Paging{
 		Page:        page,
 		RowsPerPage: limit,
 		TotalRows:   totalRows,

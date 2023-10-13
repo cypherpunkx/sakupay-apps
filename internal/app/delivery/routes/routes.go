@@ -15,10 +15,16 @@ func SetupRouter(router *gin.Engine) error {
 		sakupay := v1.Group("/sakupay")
 		{
 			users := sakupay.Group("/users")
+			userRepo := repository.NewUserRepository(config.DB)
+			userService := service.NewUserService(userRepo)
+			controller := controller.NewUserController(userService)
+
 			{
-				users.GET("/", func(c *gin.Context) {
-					c.String(200, "ok")
-				})
+				users.GET("/", controller.FindUsers)
+				users.POST("/", controller.Registration)
+				users.GET("/:id", controller.FindUser)
+				users.PUT("/:id", controller.UpdatingUser)
+				users.DELETE("/:id", controller.DeletedUser)
 			}
 			wallet := sakupay.Group("/wallet")
 			walletRepo := repository.NewWalletRepository(config.DB)
