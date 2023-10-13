@@ -6,7 +6,9 @@ import (
 )
 
 type application struct {
+	// walletService service.WalletService
 	engine *gin.Engine
+	// host          string
 }
 
 func (app *application) Run() {
