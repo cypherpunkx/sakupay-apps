@@ -1,12 +1,12 @@
 package security
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sakupay-apps/config"
 	"github.com/sakupay-apps/internal/model"
+	"github.com/sakupay-apps/utils/exception"
 )
 
 func CreateAccessToken(user *model.User) (string, error) {
@@ -26,7 +26,7 @@ func CreateAccessToken(user *model.User) (string, error) {
 	ss, err := token.SignedString(config.Cfg.TokenConfig.JWTSignatureKey)
 
 	if err != nil {
-		return "", fmt.Errorf("failed to create access token : %s", err.Error())
+		return "", exception.ErrFailedCreateToken
 	}
 
 	return ss, nil
@@ -35,19 +35,19 @@ func CreateAccessToken(user *model.User) (string, error) {
 func VerifyAccessToken(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 		if method, ok := t.Method.(*jwt.SigningMethodHMAC); !ok || method != config.Cfg.TokenConfig.JWTSigningMethod {
-			return nil, fmt.Errorf("invalid token string method")
+			return nil, exception.ErrInvalidTokenStringMethod
 		}
 		return config.Cfg.TokenConfig.JWTSignatureKey, nil
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("invalid parse token : %s", err.Error())
+		return nil, exception.ErrInvalidParseToken
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 
 	if !ok || !token.Valid || claims["iss"] != config.Cfg.TokenConfig.ApplicationName {
-		return nil, fmt.Errorf("invalid token mapclaims")
+		return nil, exception.ErrInvalidTokenMapclaims
 	}
 
 	return claims, nil

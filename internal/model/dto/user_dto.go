@@ -7,19 +7,17 @@ import (
 )
 
 type UserResponse struct {
-	ID               string              `json:"id"`
-	Username         string              `json:"username"`
-	Email            string              `json:"email"`
-	Password         string              `json:"password"`
-	FirstName        string              `json:"firstName"`
-	LastName         string              `json:"lastName"`
-	PhoneNumber      string              `json:"phoneNumber"`
-	RegistrationDate time.Time           `json:"registrationDate"`
-	ProfilePicture   []byte              `json:"profilePicture"`
-	LastLogin        time.Time           `json:"lastLogin"`
-	Wallet           model.Wallet        `json:"wallet"`
-	Cards            []model.Card        `json:"cards"`
-	Contacts         []model.Contact     `json:"contacts"`
-	Bills            []model.Bill        `json:"bills"`
-	Transactions     []model.Transaction `json:"transactions"`
+	ID               string          `json:"id"`
+	Username         string          `json:"username"`
+	Email            string          `json:"email"`
+	Password         string          `json:"password"`
+	FirstName        string          `json:"firstName"`
+	LastName         string          `json:"lastName"`
+	PhoneNumber      string          `json:"phoneNumber"`
+	RegistrationDate time.Time       `json:"registrationDate"`
+	ProfilePicture   []byte          `json:"profilePicture"`
+	LastLogin        time.Time       `json:"lastLogin"`
+	Wallet           model.Wallet    `json:"wallet,omitempty"`
+	Cards            []model.Card    `json:"cards,omitempty"`
+	Contacts         []model.Contact `json:"contacts,omitempty"`
 }

@@ -4,27 +4,36 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sakupay-apps/config"
 	"github.com/sakupay-apps/internal/app/delivery/controller"
-	"github.com/sakupay-apps/internal/app/repository"
-	"github.com/sakupay-apps/internal/app/service"
+	"github.com/sakupay-apps/internal/app/delivery/middleware"
+	"github.com/sakupay-apps/internal/app/manager"
 )
 
 func SetupRouter(router *gin.Engine) error {
+
+	infraManager := manager.NewInfraManager(config.Cfg)
+	serviceManager := manager.NewRepoManager(infraManager)
+	repoManager := manager.NewServiceManager(serviceManager)
+
+	// User Controller
+	userController := controller.NewUserController(repoManager.UserService(), repoManager.AuthService())
 
 	v1 := router.Group("/api/v1")
 	{
 		sakupay := v1.Group("/sakupay")
 		{
-			users := sakupay.Group("/users")
-			userRepo := repository.NewUserRepository(config.DB)
-			userService := service.NewUserService(userRepo)
-			controller := controller.NewUserController(userService)
-
+			auth := sakupay.Group("/auth")
 			{
-				users.GET("/", controller.FindUsers)
-				users.POST("/", controller.Registration)
-				users.GET("/:id", controller.FindUser)
-				users.PUT("/:id", controller.UpdatingUser)
-				users.DELETE("/:id", controller.DeletedUser)
+				auth.POST("/register", userController.Registration)
+				auth.POST("/login", userController.Login)
+			}
+
+			users := sakupay.Group("/users", middleware.AuthMiddleware())
+			{
+				users.GET("/", userController.FindUsers)
+				// users.GET("/:id/contacts", userController.GetContacts)
+				users.GET("/:id", userController.FindUser)
+				users.PUT("/:id", userController.UpdatingUser)
+				users.DELETE("/:id", userController.DeletedUser)
 			}
 		}
 	}
