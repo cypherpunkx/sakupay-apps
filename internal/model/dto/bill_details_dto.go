@@ -2,6 +2,7 @@ package dto
 
 import "github.com/sakupay-apps/internal/model"
 
+
 type BillDetailsResponse struct {
 	ID          string     `json:"id"`
 	Bill        model.Bill `json:"bill"`
@@ -10,3 +11,4 @@ type BillDetailsResponse struct {
 	Description string     `json:"description"`
 	Website     string     `json:"website"`
 }
+
