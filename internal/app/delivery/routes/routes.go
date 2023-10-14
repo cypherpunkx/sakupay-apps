@@ -17,21 +17,21 @@ func SetupRouter(router *gin.Engine) error {
 			users := sakupay.Group("/users")
 			userRepo := repository.NewUserRepository(config.DB)
 			userService := service.NewUserService(userRepo)
-			controller := controller.NewUserController(userService)
+			uesrController := controller.NewUserController(userService)
 
 			{
-				users.GET("/", controller.FindUsers)
-				users.POST("/", controller.Registration)
-				users.GET("/:id", controller.FindUser)
-				users.PUT("/:id", controller.UpdatingUser)
-				users.DELETE("/:id", controller.DeletedUser)
+				users.GET("/", uesrController.FindUsers)
+				users.POST("/", uesrController.Registration)
+				users.GET("/:id", uesrController.FindUser)
+				users.PUT("/:id", uesrController.UpdatingUser)
+				users.DELETE("/:id", uesrController.DeletedUser)
 			}
 			wallet := sakupay.Group("/wallet")
 			walletRepo := repository.NewWalletRepository(config.DB)
-			walletService := service.NewWalletService(walletRepo)
-			controller := controller.NewWalletController(walletService)
+			walletService := service.NewWalletService(walletRepo, userRepo)
+			walletController := controller.NewWalletController(walletService)
 			{
-				wallet.POST("/", controller.CreateHandler)
+				wallet.POST("/", walletController.CreateHandler)
 			}
 		}
 	}

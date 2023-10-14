@@ -1,12 +1,15 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sakupay-apps/internal/app/service"
 	"github.com/sakupay-apps/internal/model"
+	"github.com/sakupay-apps/internal/model/dto"
 	"github.com/sakupay-apps/utils/common"
+	"github.com/sakupay-apps/utils/exception"
 )
 
 type WalletController struct {
@@ -14,25 +17,44 @@ type WalletController struct {
 }
 
 func (w *WalletController) CreateHandler(c *gin.Context) {
-	var wallet model.Wallet
-	wallet.ID = common.GenerateUUID()
-	if err := c.ShouldBindJSON(&wallet); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+	payload := model.Wallet{}
+
+	payload.ID = common.GenerateUUID()
+
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
+			"code":    http.StatusBadRequest,
+			"status":  exception.StatusBadRequest,
+			"message": exception.FieldErrors(err),
 		})
 		return
 	}
-	err := w.service.RegisterNewWallet(wallet)
+
+	data, err := w.service.RegisterNewWallet(&payload)
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+		if errors.Is(err, exception.ErrFailedCreate) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: exception.ErrFailedCreate.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{
-		"status":  http.StatusCreated,
-		"message": "Success Create New Wallet",
-		"data":    wallet,
+
+	c.JSON(http.StatusCreated, dto.Response{
+		Code:    http.StatusCreated,
+		Status:  exception.StatusSuccess,
+		Message: "Get Wallet",
+		Data:    data,
 	})
 }
 
