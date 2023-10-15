@@ -4,29 +4,36 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sakupay-apps/config"
 	"github.com/sakupay-apps/internal/app/delivery/controller"
-	"github.com/sakupay-apps/internal/app/repository"
-	"github.com/sakupay-apps/service"
+	"github.com/sakupay-apps/internal/app/delivery/middleware"
+	"github.com/sakupay-apps/internal/app/manager"
 )
 
 func SetupRouter(router *gin.Engine) error {
 
-	
+	infraManager := manager.NewInfraManager(config.Cfg)
+	serviceManager := manager.NewRepoManager(infraManager)
+	repoManager := manager.NewServiceManager(serviceManager)
+
+	// User Controller
+	userController := controller.NewUserController(repoManager.UserService(), repoManager.AuthService())
+
 	v1 := router.Group("/api/v1")
 	{
 		sakupay := v1.Group("/sakupay")
 		{
 
-			bills := sakupay.Group("/bill")
-			repository := repository.NewBillRepository(config.DB)
-			service := service.NewBillService(repository)
-			controller := controller.NewBillController(service)
-			{		
-			bills.POST("/", controller.CreateNewBill) 
-			bills.GET("/:id", controller.GetDetailBill) 
+			}
+
+			users := sakupay.Group("/users", middleware.AuthMiddleware())
+			{
+				users.GET("/", userController.FindUsers)
+				// users.GET("/:id/contacts", userController.GetContacts)
+				users.GET("/:id", userController.FindUser)
+				users.PUT("/:id", userController.UpdatingUser)
+				users.DELETE("/:id", userController.DeletedUser)
 			}
 
 		}
-	}
 
 	return router.Run()
 }

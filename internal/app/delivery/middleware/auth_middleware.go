@@ -1,11 +1,12 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sakupay-apps/internal/model/dto"
+	"github.com/sakupay-apps/utils/exception"
 	"github.com/sakupay-apps/utils/security"
 )
 
@@ -19,26 +20,42 @@ func AuthMiddleware() gin.HandlerFunc {
 		var header authHeader
 
 		if err := c.ShouldBindHeader(&header); err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token not provided"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
+				Code:    http.StatusUnauthorized,
+				Status:  exception.StatusUnauthorized,
+				Message: exception.ErrTokenNotProvided.Error(),
+			})
+			return
+		}
+
+		if header.AuthorizationHeader == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
+				Code:    http.StatusUnauthorized,
+				Status:  exception.StatusUnauthorized,
+				Message: exception.ErrTokenNotProvided.Error(),
+			})
 			return
 		}
 
 		token := strings.Split(header.AuthorizationHeader, " ")[1]
 
-		fmt.Println(token)
-
 		if token == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token not provided"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
+				Code:    http.StatusUnauthorized,
+				Status:  exception.StatusUnauthorized,
+				Message: exception.ErrTokenNotProvided.Error(),
+			})
 			return
 		}
 
 		claims, err := security.VerifyAccessToken(token)
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
+				Code:    http.StatusUnauthorized,
+				Status:  exception.StatusUnauthorized,
+				Message: err.Error(),
+			})
 			return
 		}
 
