@@ -11,7 +11,9 @@ const (
 
 var (
 	ErrNotFound                 = errors.New("data not found")
-	ErrCodeAlreadyExist         = errors.New("code already exist")
+	ErrUsernameAlreadyExist     = errors.New("username already exist")
+	ErrEmailAlreadyExist        = errors.New("email already exist")
+	ErrPhoneNumberAlreadyExist  = errors.New("phone number already exist")
 	ErrFailedCreate             = errors.New("failed to create data")
 	ErrFailedCreateToken        = errors.New("failed to create token")
 	ErrInvalidParseToken        = errors.New("invalid to parse token")

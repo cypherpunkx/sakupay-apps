@@ -35,7 +35,7 @@ func InitiliazeConfig() {
 		ApplicationName:     Cfg.Token.Name,
 		JWTSignatureKey:     []byte(Cfg.Token.Key),
 		JWTSigningMethod:    jwt.SigningMethodHS256,
-		AccessTokenLifeTime: time.Duration(appTokenExpire) * time.Minute,
+		AccessTokenLifeTime: time.Duration(appTokenExpire) * time.Hour,
 	}
 
 }

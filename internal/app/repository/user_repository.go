@@ -34,6 +34,11 @@ func (r *userRepository) Create(payload *model.User) (*model.User, error) {
 		FirstName:   payload.FirstName,
 		LastName:    payload.LastName,
 		PhoneNumber: payload.PhoneNumber,
+		Wallet: model.Wallet{
+			ID:      common.GenerateUUID(),
+			Name:    "sakupay",
+			Balance: 0,
+		},
 	}
 
 	if err := r.db.Create(&user).Error; err != nil {
@@ -50,7 +55,7 @@ func (r *userRepository) List(requestPaging dto.PaginationParam, queries ...stri
 
 	var totalRows int64
 
-	if err := r.db.Limit(paginationQuery.Take).Offset(paginationQuery.Skip).Find(&users).Count(&totalRows).Error; err != nil {
+	if err := r.db.Limit(paginationQuery.Take).Offset(paginationQuery.Skip).Preload("Wallet").Find(&users).Count(&totalRows).Error; err != nil {
 		return nil, nil, err
 	}
 
@@ -62,7 +67,7 @@ func (r *userRepository) List(requestPaging dto.PaginationParam, queries ...stri
 func (r *userRepository) Get(id string) (*model.User, error) {
 	user := model.User{}
 
-	if err := r.db.Where(constants.WHERE_BY_ID, id).First(&user).Error; err != nil {
+	if err := r.db.Where(constants.WHERE_BY_ID, id).Preload("Wallet").First(&user).Error; err != nil {
 		return nil, err
 	}
 

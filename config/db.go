@@ -20,6 +20,7 @@ func InitDB() {
 		NowFunc: func() time.Time {
 			return time.Now().Local()
 		},
+		PrepareStmt: true,
 	})
 
 	if err != nil {

@@ -12,6 +12,7 @@ type User struct {
 	FirstName        string    `gorm:"type:varchar(255);not null" json:"firstName" binding:"required,alpha"`
 	LastName         string    `gorm:"type:varchar(255);not null" json:"lastName" binding:"required,alpha"`
 	PhoneNumber      string    `gorm:"type:varchar(255);not null;unique" json:"phoneNumber" binding:"required,numeric"`
+	Wallet           Wallet    `gorm:"references:ID" json:"wallet"`
 	RegistrationDate time.Time `gorm:"type:timestamp;default:current_timestamp" json:"registrationDate" binding:"omitempty"`
 	ProfilePicture   []byte    `json:"profilePicture" binding:"omitempty"`
 	LastLogin        time.Time `gorm:"type:timestamp;default:current_timestamp" json:"lastLogin" binding:"omitempty"`

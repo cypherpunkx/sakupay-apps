@@ -6,6 +6,7 @@ import (
 
 type RepoManager interface {
 	UserRepo() repository.UserRepository
+	TransactionRepo() repository.TransactionRepository
 }
 
 type repoManager struct {
@@ -14,6 +15,10 @@ type repoManager struct {
 
 func (m *repoManager) UserRepo() repository.UserRepository {
 	return repository.NewUserRepository(m.infraManager.Conn())
+}
+
+func (m *repoManager) TransactionRepo() repository.TransactionRepository {
+	return repository.NewTransactionRepository(m.infraManager.Conn())
 }
 
 func NewRepoManager(infra InfraManager) RepoManager {

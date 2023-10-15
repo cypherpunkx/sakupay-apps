@@ -17,6 +17,9 @@ func SetupRouter(router *gin.Engine) error {
 	// User Controller
 	userController := controller.NewUserController(repoManager.UserService(), repoManager.AuthService())
 
+	// Transaction Controller
+	transactionController := controller.NewTransactionController(repoManager.TransactionService())
+
 	v1 := router.Group("/api/v1")
 	{
 		sakupay := v1.Group("/sakupay")
@@ -34,7 +37,9 @@ func SetupRouter(router *gin.Engine) error {
 				users.GET("/:id", userController.FindUser)
 				users.PUT("/:id", userController.UpdatingUser)
 				users.DELETE("/:id", userController.DeletedUser)
+				users.POST("/:id/transaction", transactionController.CreateDeposit)
 			}
+
 		}
 	}
 

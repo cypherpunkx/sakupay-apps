@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/sakupay-apps/internal/app/repository"
 	"github.com/sakupay-apps/internal/model"
 	"github.com/sakupay-apps/internal/model/dto"
@@ -37,13 +39,13 @@ func (s *userService) RegisterNewUser(payload *model.User) (*dto.UserResponse, e
 
 	for _, user := range users {
 		if user.Username == payload.Username {
-			return nil, exception.ErrCodeAlreadyExist
+			return nil, exception.ErrUsernameAlreadyExist
 		}
 		if user.Email == payload.Email {
-			return nil, exception.ErrCodeAlreadyExist
+			return nil, exception.ErrEmailAlreadyExist
 		}
 		if user.PhoneNumber == payload.PhoneNumber {
-			return nil, exception.ErrCodeAlreadyExist
+			return nil, exception.ErrPhoneNumberAlreadyExist
 		}
 	}
 
@@ -51,7 +53,11 @@ func (s *userService) RegisterNewUser(payload *model.User) (*dto.UserResponse, e
 		return nil, exception.ErrFailedCreate
 	}
 
-	bytes, _ := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
+
+	if err != nil {
+		return nil, err
+	}
 
 	password := string(bytes)
 
@@ -61,14 +67,16 @@ func (s *userService) RegisterNewUser(payload *model.User) (*dto.UserResponse, e
 
 	userResponse := dto.UserResponse{
 		ID:               user.ID,
-		Username:         payload.Username,
+		Username:         user.Username,
 		Email:            user.Email,
 		Password:         user.Password,
-		FirstName:        payload.FirstName,
-		LastName:         payload.Username,
-		PhoneNumber:      payload.PhoneNumber,
-		RegistrationDate: payload.RegistrationDate,
-		ProfilePicture:   payload.ProfilePicture,
+		FirstName:        user.FirstName,
+		LastName:         user.Username,
+		PhoneNumber:      user.PhoneNumber,
+		Wallet:           user.Wallet,
+		RegistrationDate: user.RegistrationDate,
+		ProfilePicture:   user.ProfilePicture,
+		LastLogin:        time.Now(),
 	}
 
 	return &userResponse, err
@@ -90,6 +98,7 @@ func (s *userService) FindUserByID(id string) (*dto.UserResponse, error) {
 		FirstName:        user.FirstName,
 		LastName:         user.Username,
 		PhoneNumber:      user.PhoneNumber,
+		Wallet:           user.Wallet,
 		RegistrationDate: user.RegistrationDate,
 		ProfilePicture:   user.ProfilePicture,
 		LastLogin:        user.LastLogin,
@@ -118,6 +127,7 @@ func (s *userService) FindAllUser(requestPaging dto.PaginationParam, queries ...
 			FirstName:        user.FirstName,
 			LastName:         user.Username,
 			PhoneNumber:      user.PhoneNumber,
+			Wallet:           user.Wallet,
 			RegistrationDate: user.RegistrationDate,
 			ProfilePicture:   user.ProfilePicture,
 			LastLogin:        user.LastLogin,
@@ -151,6 +161,7 @@ func (s *userService) RemoveUser(id string) (*dto.UserResponse, error) {
 		FirstName:        user.FirstName,
 		LastName:         user.Username,
 		PhoneNumber:      user.PhoneNumber,
+		Wallet:           user.Wallet,
 		RegistrationDate: user.RegistrationDate,
 		ProfilePicture:   user.ProfilePicture,
 		LastLogin:        user.LastLogin,
@@ -181,6 +192,7 @@ func (s *userService) UpdateUserByID(id string, payload *model.User) (*dto.UserR
 		FirstName:        user.FirstName,
 		LastName:         user.Username,
 		PhoneNumber:      user.PhoneNumber,
+		Wallet:           user.Wallet,
 		RegistrationDate: user.RegistrationDate,
 		ProfilePicture:   user.ProfilePicture,
 		LastLogin:        user.LastLogin,
