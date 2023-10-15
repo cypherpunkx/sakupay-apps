@@ -17,11 +17,18 @@ func SetupRouter(router *gin.Engine) error {
 	// User Controller
 	userController := controller.NewUserController(repoManager.UserService(), repoManager.AuthService())
 
+	// Bill Controller
+
+	billController := controller.NewBillController(repoManager.BillService(), repoManager.UserService())
+
 	v1 := router.Group("/api/v1")
 	{
 		sakupay := v1.Group("/sakupay")
 		{
-
+			auth := sakupay.Group("/auth")
+			{
+				auth.POST("/register", userController.Registration)
+				auth.POST("/login", userController.Login)
 			}
 
 			users := sakupay.Group("/users", middleware.AuthMiddleware())
@@ -31,9 +38,12 @@ func SetupRouter(router *gin.Engine) error {
 				users.GET("/:id", userController.FindUser)
 				users.PUT("/:id", userController.UpdatingUser)
 				users.DELETE("/:id", userController.DeletedUser)
+
+				users.POST("/:id/bill",billController.CreateNewBill)
 			}
 
 		}
 
-	return router.Run()
+		return router.Run()
+	}
 }

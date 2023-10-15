@@ -1,14 +1,15 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
-	"strings"
+
 	"github.com/gin-gonic/gin"
+	"github.com/sakupay-apps/internal/app/service"
 	"github.com/sakupay-apps/internal/model"
-	"github.com/sakupay-apps/service"
+	"github.com/sakupay-apps/internal/model/dto"
+	"github.com/sakupay-apps/utils/common"
 	"github.com/sakupay-apps/utils/exception"
-	// "github.com/sakupay-apps/utils/common"
-	// "github.com/sakupay-apps/utils/exception"
 )
 
 type response struct {
@@ -23,30 +24,44 @@ type errorResponse struct {
 }
 
 type BillController struct {
-	service service.BillService
+	billservice service.BillService
+	userService	service.UserService
 }
 
 func (b *BillController) CreateNewBill(c *gin.Context) {
+
+	id := c.Param("id")
+
 	var bill model.Bill
-	// bill.ID = common.GenerateUUID()
-	// bill.UserID = common.GenerateUUID()
-	// bill.BilldetailsID = common.GenerateUUID()
-	// bill.DueDate = time.Now()
+	bill.ID = common.GenerateUUID()
+	bill.UserID = id
+
 	if err := c.ShouldBindJSON(&bill); err != nil {
 
 		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
 			"code" 	  :http.StatusBadRequest,  
-			"status"  :http.StatusBadRequest,
-			"message" :err.Error(),
+			"status"  :exception.StatusBadRequest,
+			"message" :exception.FieldErrors(err),
 		})
 		return
 	}
 
-	_,err := b.service.CreateNewBill(&bill)
+	data,err := b.billservice.CreateNewBill(&bill)
+	
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse{
-			Status  :  http.StatusInternalServerError,
-			Message : err.Error(),
+		if errors.Is(err, exception.ErrFailedCreate) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: exception.ErrFailedCreate.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
 		})
 		return
 	}
@@ -54,41 +69,14 @@ func (b *BillController) CreateNewBill(c *gin.Context) {
 	c.JSON(http.StatusCreated, response{
 		Status	: http.StatusCreated,
 		Message	: "Success Create Bills",
-		Data	: bill,
+		Data	: data,
 	})
 }
 
-func (b *BillController) GetDetailBill(c *gin.Context) {
-	id := c.Param("id")
+func NewBillController(billService service.BillService, userService service.UserService) *BillController{
 
-	bill, err := b.service.FindBillByID(id)
-	if err != nil {
-		if strings.Contains(err.Error(), exception.ErrNotFound.Error()) {
-			c.JSON(http.StatusNotFound, errorResponse{
-				Status:  http.StatusNotFound,
-				Message: err.Error(),
-			})
-			return
+	return  &BillController{
+		billservice	  : billService,
+		userService: userService,
 		}
-
-		c.JSON(http.StatusInternalServerError, errorResponse{
-			Status:  http.StatusInternalServerError,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, response{
-		Status:  http.StatusOK,
-		Message: "Success Get Detail Bill",
-		Data:    bill,
-	})
-}
-
-func NewBillController(service service.BillService) *BillController{
-	controller := &BillController{
-	service	   : service,
-	}
-
-	return controller
 }

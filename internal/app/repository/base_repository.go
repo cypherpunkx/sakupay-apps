@@ -12,3 +12,5 @@ type BaseRepository[T any] interface {
 	Delete(id string) (*T, error)
 }
 
+
+

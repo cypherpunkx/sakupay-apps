@@ -7,6 +7,7 @@ import (
 type ServiceManager interface {
 	UserService() service.UserService
 	AuthService() service.AuthService
+	BillService() service.BillService
 }
 
 type serviceManager struct {
@@ -25,4 +26,8 @@ func (m *serviceManager) UserService() service.UserService {
 
 func (m *serviceManager) AuthService() service.AuthService {
 	return service.NewAuthService(m.UserService())
+}
+
+func (m *serviceManager) BillService() service.BillService {
+	return service.NewBillService(m.repoManager.BillRepo(),m.repoManager.UserRepo())
 }
