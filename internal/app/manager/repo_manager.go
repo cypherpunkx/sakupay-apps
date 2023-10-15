@@ -7,10 +7,17 @@ import (
 type RepoManager interface {
 	UserRepo() repository.UserRepository
 	TransactionRepo() repository.TransactionRepository
+	BillRepo() repository.BillRepository
 }
 
 type repoManager struct {
 	infraManager InfraManager
+}
+
+func NewRepoManager(infra InfraManager) RepoManager {
+	return &repoManager{
+		infraManager: infra,
+	}
 }
 
 func (m *repoManager) UserRepo() repository.UserRepository {
@@ -21,8 +28,6 @@ func (m *repoManager) TransactionRepo() repository.TransactionRepository {
 	return repository.NewTransactionRepository(m.infraManager.Conn())
 }
 
-func NewRepoManager(infra InfraManager) RepoManager {
-	return &repoManager{
-		infraManager: infra,
-	}
+func (m *repoManager) BillRepo() repository.BillRepository {
+	return repository.NewBillRepository(m.infraManager.Conn())
 }

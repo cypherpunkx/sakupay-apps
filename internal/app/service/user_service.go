@@ -20,7 +20,6 @@ type UserService interface {
 	FindByUsername(username string) (*model.User, error)
 	FindByUsernamePassword(username string, password string) (*model.User, error)
 }
-
 type userService struct {
 	repo repository.UserRepository
 }

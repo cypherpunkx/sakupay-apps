@@ -1,6 +1,8 @@
 package repository
 
-import "github.com/sakupay-apps/internal/model/dto"
+import (
+	"github.com/sakupay-apps/internal/model/dto"
+)
 
 type BaseRepository[T any] interface {
 	Create(payload *T) (*T, error)
@@ -9,3 +11,6 @@ type BaseRepository[T any] interface {
 	Update(id string, payload *T) (*T, error)
 	Delete(id string) (*T, error)
 }
+
+
+

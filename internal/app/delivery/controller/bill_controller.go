@@ -12,18 +12,25 @@ import (
 	"github.com/sakupay-apps/utils/exception"
 )
 
-type billController struct {
-	service service.BillService
+type BillController struct {
+	billService service.BillService
+	userService service.UserService
 }
 
-func NewBillController(service service.BillService) *billController {
-	return &billController{service: service}
+func NewBillController(billService service.BillService, userService service.UserService) *BillController {
+	return &BillController{
+		billService: billService,
+		userService: userService,
+	}
 }
 
-func (ctr *billController) CreateNewBill(c *gin.Context) {
+func (b *BillController) CreateNewBill(c *gin.Context) {
+	id := c.Param("id")
+
 	payload := model.Bill{}
 
 	payload.ID = common.GenerateUUID()
+	payload.UserID = id
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
@@ -34,7 +41,7 @@ func (ctr *billController) CreateNewBill(c *gin.Context) {
 		return
 	}
 
-	data, err := ctr.service.CreateNewBill(&payload)
+	data, err := b.billService.CreateNewBill(&payload)
 
 	if err != nil {
 		if errors.Is(err, exception.ErrFailedCreate) {
@@ -58,8 +65,7 @@ func (ctr *billController) CreateNewBill(c *gin.Context) {
 	c.JSON(http.StatusCreated, dto.Response{
 		Code:    http.StatusCreated,
 		Status:  exception.StatusSuccess,
-		Message: "Get All Bills",
+		Message: "Success Create Bill",
 		Data:    data,
 	})
-
 }

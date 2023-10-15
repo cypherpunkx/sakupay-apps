@@ -14,24 +14,32 @@ type billRepository struct {
 }
 
 func NewBillRepository(db *gorm.DB) BillRepository {
-	return &billRepository{db: db}
+	return &billRepository{
+		db: db,
+	}
 }
 
-func (r *billRepository) Create(payload *model.Bill) (*model.Bill, error) {
+func (b *billRepository) Create(payload *model.Bill) (*model.Bill, error) {
 	bill := model.Bill{
-		ID:            payload.ID,
-		UserID:        payload.UserID,
-		BilldetailsID: payload.BilldetailsID,
-		Total:         payload.Total,
-		DueDate:       payload.DueDate,
+		ID:          payload.ID,
+		UserID:      payload.UserID,
+		Billdetails: payload.Billdetails,
+		Total:       payload.Total,
+		DueDate:     payload.DueDate,
 	}
 
-	r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(&bill).Error; err != nil {
-			return err
-		}
-		return nil
-	})
+	if err := b.db.Create(&bill).Error; err != nil {
+		return nil, err
+	}
+	return &bill, nil
+}
+
+func (b *billRepository) Get(id string) (*model.Bill, error) {
+	bill := model.Bill{}
+
+	if err := b.db.Where("WHERE id = ? ", id).Find(&bill).Error; err != nil {
+		return nil, err
+	}
 
 	return &bill, nil
 }

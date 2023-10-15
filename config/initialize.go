@@ -25,11 +25,11 @@ func InitiliazeConfig() {
 		panic(err)
 	}
 
-	appTokenExpire, err := strconv.Atoi(Cfg.Token.Expire)
+	appTokenExpire, _ := strconv.Atoi(Cfg.Token.Expire)
 
-	if err != nil {
-		panic(err)
-	}
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	Cfg.TokenConfig = TokenConfig{
 		ApplicationName:     Cfg.Token.Name,

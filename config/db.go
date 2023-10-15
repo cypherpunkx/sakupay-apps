@@ -16,7 +16,7 @@ var once sync.Once
 
 func InitDB() {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai", Cfg.Database.Host, Cfg.Database.Username, Cfg.Database.Password, Cfg.Database.Dbname, Cfg.Database.Port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	Db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		NowFunc: func() time.Time {
 			return time.Now().Local()
 		},
@@ -28,7 +28,7 @@ func InitDB() {
 	}
 
 	once.Do(func() {
-		DB = db
+		DB = Db
 		fmt.Println("Successfully Connected To Database!")
 	})
 }
