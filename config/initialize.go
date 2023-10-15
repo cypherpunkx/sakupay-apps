@@ -14,7 +14,7 @@ var (
 
 func InitiliazeConfig() {
 
-	viper.SetConfigFile(".env")
+	viper.SetConfigFile("../.env")
 	viper.SetConfigType("env")
 
 	if err := viper.ReadInConfig(); err != nil {
