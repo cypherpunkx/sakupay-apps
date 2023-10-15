@@ -3,10 +3,12 @@ package delivery
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/sakupay-apps/internal/app/delivery/routes"
+	
 )
 
 type application struct {
 	engine *gin.Engine
+	
 }
 
 func (app *application) Run() {
@@ -23,3 +25,5 @@ func Server() *application {
 	}
 
 }
+
+
