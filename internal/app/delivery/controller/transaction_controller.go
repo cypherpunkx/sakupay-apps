@@ -21,7 +21,7 @@ func NewTransactionController(service service.TransactionService) *transactionCo
 	return &transactionController{service: service}
 }
 
-func (ctr *transactionController) CreateDeposit(c *gin.Context) {
+func (ctr *transactionController) CreateTransaction(c *gin.Context) {
 	id := c.Param("id")
 
 	payload := model.Transaction{}
@@ -47,7 +47,7 @@ func (ctr *transactionController) CreateDeposit(c *gin.Context) {
 		return
 	}
 
-	data, err := ctr.service.Deposit(&payload)
+	data, err := ctr.service.CreateTransaction(&payload)
 
 	if err != nil {
 		if errors.Is(err, exception.ErrFailedCreate) {
@@ -68,6 +68,15 @@ func (ctr *transactionController) CreateDeposit(c *gin.Context) {
 			return
 		}
 
+		if errors.Is(err, errors.New("saldo tidak cukup")) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: errors.New("saldo tidak cukup"),
+			})
+			return
+		}
+
 		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Code:    http.StatusInternalServerError,
 			Status:  exception.StatusInternalServer,
@@ -80,6 +89,69 @@ func (ctr *transactionController) CreateDeposit(c *gin.Context) {
 		Code:    http.StatusCreated,
 		Status:  exception.StatusSuccess,
 		Message: "Create Transaction",
+		Data:    data,
+	})
+}
+
+func (ctr *transactionController) ListHandler(c *gin.Context) {
+	id := c.Param("id")
+
+	data, err := ctr.service.FindAllTransaction(id)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
+		Status:  exception.StatusSuccess,
+		Message: "Get All Transaction",
+		Data:    data,
+	})
+}
+
+func (ctr *transactionController) FindTransaction(c *gin.Context) {
+	id := c.Params.ByName("id")
+	transactionID := c.Params.ByName("transactionID")
+
+	data, err := ctr.service.FindTransactionByID(id, transactionID)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
+		Status:  exception.StatusSuccess,
+		Message: "Get Transaction By Id",
 		Data:    data,
 	})
 }
