@@ -6,14 +6,12 @@ import (
 )
 
 type application struct {
-	// walletService service.WalletService
 	engine *gin.Engine
-	// host          string
 }
 
 func (app *application) Run() {
 	if err := routes.SetupRouter(app.engine); err != nil {
-		panic("Aplication error")
+		panic("Application error")
 	}
 }
 

@@ -13,6 +13,7 @@ import (
 
 type UserRepository interface {
 	BaseRepository[model.User]
+	BaseRepositoryPaging[model.User]
 	GetUsernamePassword(username, password string) (*model.User, error)
 	GetUsername(username string) (*model.User, error)
 }
@@ -48,7 +49,17 @@ func (r *userRepository) Create(payload *model.User) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *userRepository) List(requestPaging dto.PaginationParam, queries ...string) ([]*model.User, *dto.Paging, error) {
+func (r *userRepository) List() ([]*model.User, error) {
+	users := []*model.User{}
+
+	if err := r.db.Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func (r *userRepository) Paging(requestPaging dto.PaginationParam, queries ...string) ([]*model.User, *dto.Paging, error) {
 	users := []*model.User{}
 
 	paginationQuery := common.GetPaginationParams(requestPaging)

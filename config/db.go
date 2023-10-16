@@ -35,6 +35,6 @@ func InitDB() {
 
 func SyncDB() {
 	if err := DB.AutoMigrate(&model.User{}, &model.Bill{}, &model.BillDetails{}, &model.Card{}, &model.Contact{}, &model.Transaction{}, &model.Wallet{}); err != nil {
-		fmt.Printf(err.Error())
+		fmt.Print(err.Error())
 	}
 }

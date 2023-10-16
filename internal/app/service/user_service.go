@@ -30,7 +30,7 @@ func NewUserService(repo repository.UserRepository) UserService {
 
 func (s *userService) RegisterNewUser(payload *model.User) (*dto.UserResponse, error) {
 
-	users, _, err := s.repo.List(dto.PaginationParam{})
+	users, err := s.repo.List()
 
 	if err != nil {
 		return nil, exception.ErrFailedCreate
@@ -46,10 +46,6 @@ func (s *userService) RegisterNewUser(payload *model.User) (*dto.UserResponse, e
 		if user.PhoneNumber == payload.PhoneNumber {
 			return nil, exception.ErrPhoneNumberAlreadyExist
 		}
-	}
-
-	if err != nil {
-		return nil, exception.ErrFailedCreate
 	}
 
 	bytes, err := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
@@ -108,7 +104,7 @@ func (s *userService) FindUserByID(id string) (*dto.UserResponse, error) {
 
 func (s *userService) FindAllUser(requestPaging dto.PaginationParam, queries ...string) ([]*dto.UserResponse, *dto.Paging, error) {
 
-	users, paging, err := s.repo.List(requestPaging, queries...)
+	users, paging, err := s.repo.Paging(requestPaging, queries...)
 
 	if err != nil {
 		return nil, nil, gorm.ErrRecordNotFound
