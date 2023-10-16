@@ -34,12 +34,12 @@ func SetupRouter(router *gin.Engine) error {
 			users := sakupay.Group("/users", middleware.AuthMiddleware())
 			{
 				users.GET("/", userController.FindUsers)
-				// users.GET("/:id/contacts", userController.GetContacts)
 				users.GET("/:id", userController.FindUser)
 				users.PUT("/:id", userController.UpdatingUser)
 				users.DELETE("/:id", userController.DeletedUser)
 
 				users.POST("/:id/bill",billController.CreateNewBill)
+				users.GET("/:userID/bill/:billID/",billController.FindBill)
 			}
 
 		}

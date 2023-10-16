@@ -10,6 +10,7 @@ import (
 	"github.com/sakupay-apps/internal/model/dto"
 	"github.com/sakupay-apps/utils/common"
 	"github.com/sakupay-apps/utils/exception"
+	"gorm.io/gorm"
 )
 
 type response struct {
@@ -70,6 +71,39 @@ func (b *BillController) CreateNewBill(c *gin.Context) {
 		Status	: http.StatusCreated,
 		Message	: "Success Create Bills",
 		Data	: data,
+	})
+}
+
+func (ctr *BillController) FindBill(c *gin.Context) {
+
+	user_ID := c.Param("userID")
+	bill_ID := c.Param("billID")
+
+	data, err := ctr.billservice.FindBillByID(user_ID,bill_ID)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
+		Status:  exception.StatusSuccess,
+		Message: "Get Bill By ID",
+		Data:    data,
 	})
 }
 
