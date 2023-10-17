@@ -43,7 +43,6 @@ func SetupRouter(router *gin.Engine) error {
 				users.GET("/", userController.FindAllUsers)
 				users.GET("/:id", userController.FindUser)
 				users.PUT("/:id", userController.UpdateUser)
-				users.PUT("/:id", userController.UpdateUser)
 				users.POST("/:id/upload", userController.UploadPicture)
 				users.GET("/:id/download", userController.DownloadPicture)
 				users.DELETE("/:id", userController.DeleteUser)
@@ -62,7 +61,7 @@ func SetupRouter(router *gin.Engine) error {
 				// Card
 				users.GET("/:id/cards", cardController.FindAllCards)
 				users.POST("/:id/cards", cardController.AddCard)
-				users.DELETE("/:id/cards", cardController.DeleteCard)
+				users.DELETE("/:id/cards/:cardID", cardController.DeleteCard)
 			}
 
 			// go func() {
