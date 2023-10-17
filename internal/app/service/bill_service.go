@@ -1,8 +1,6 @@
 package service
 
 import (
-	"time"
-
 	"github.com/sakupay-apps/internal/app/repository"
 	"github.com/sakupay-apps/internal/model"
 	"github.com/sakupay-apps/internal/model/dto"
@@ -16,9 +14,8 @@ type BillService interface {
 }
 
 type billService struct {
-	billRepo        repository.BillRepository
-	userRepo        repository.UserRepository
-	billDetailsRepo repository.BillDetailsRepository
+	billRepo repository.BillRepository
+	userRepo repository.UserRepository
 }
 
 func NewBillService(billRepo repository.BillRepository, userRepo repository.UserRepository) BillService {
@@ -35,8 +32,6 @@ func (b *billService) CreateNewBill(payload *model.Bill) (*dto.BillResponse, err
 	if err != nil {
 		return nil, gorm.ErrRecordNotFound
 	}
-
-	payload.DueDate = time.Now()
 
 	bill, err := b.billRepo.Create(payload)
 

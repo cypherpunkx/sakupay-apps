@@ -362,7 +362,7 @@ func (ctr *UserController) UploadPicture(c *gin.Context) {
 	userPicture.ID = common.GenerateUUID()
 	userPicture.UserID = id
 
-	err = ctr.userPicture.UploadUserPicture(userPicture, &file, ext)
+	err = ctr.userPicture.UploadUserPicture(&userPicture, &file, ext)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Code:    http.StatusInternalServerError,

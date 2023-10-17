@@ -3,7 +3,6 @@ package controller
 import (
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sakupay-apps/internal/app/service"
@@ -14,39 +13,30 @@ import (
 	"gorm.io/gorm"
 )
 
-type CardController struct {
+type cardController struct {
 	service service.CardService
 }
 
-func NewCardController(service service.CardService) *CardController {
-	return &CardController{
+func NewCardController(service service.CardService) *cardController {
+	return &cardController{
 		service: service,
 	}
 }
 
-func (cc *CardController) AddCard(c *gin.Context) {
+func (cc *cardController) AddCard(c *gin.Context) {
+	var id = c.Param("id")
 	var payload model.Card
-        var id = c.Param("id")
 
 	payload.ID = common.GenerateUUID()
 	payload.UserID = id
-	payload.ExpirationDate = time.Now()
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
-
 		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
 			"code":    http.StatusBadRequest,
 			"status":  exception.StatusBadRequest,
-			"message": err.Error(),
+			"message": exception.FieldErrors(err),
 		})
 		return
-
-		// c.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
-		// 	"code":    http.StatusBadRequest,
-		// 	"status":  exception.StatusBadRequest,
-		// 	"message": exception.FieldErrors(err),
-		// })
-		//return
 	}
 
 	data, err := cc.service.RegisterNewCard(&payload)
@@ -86,66 +76,66 @@ func (cc *CardController) AddCard(c *gin.Context) {
 	})
 }
 
+func (cc *cardController) FindAllCards(c *gin.Context) {
+	id := c.Param("id")
 
-// func (cc *ContactController) ListHandler(c *gin.Context) {
-// 	page, _ := strconv.Atoi(c.Query("page"))
-// 	limit, _ := strconv.Atoi(c.Query("limit"))
-// 	name := c.Query("name")
+	data, err := cc.service.FindAllCardList(id)
 
-// 	paginationParam := dto.PaginationParam{
-// 		Page:  page,
-// 		Limit: limit,
-// 	}
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
 
-// 	contact, paging, err := cc.service.FindAllContactList(paginationParam, name)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
 
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	status := map[string]any{
-// 		"code":        200,
-// 		"description": "Get All Data Successfully",
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"status": status,
-// 		"data":   contact,
-// 		"paging": paging,
-// 	})
-// }
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
+		Status:  exception.StatusSuccess,
+		Message: "Get All Cards",
+		Data:    data,
+	})
 
-// func (cc *ContactController) GetHandler(c *gin.Context) {
-// 	id := c.Param("id")
-// 	data, err := cc.service.FindContactById(id)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"status":  http.StatusOK,
-// 		"message": "Success Get Contact by Id",
-// 		"data":    data,
-// 	})
-// 	return
+}
+func (cc *cardController) DeleteCard(c *gin.Context) {
+	id := c.Params.ByName("id")
+	cardID := c.Params.ByName("cardID")
 
-// }
+	data, err := cc.service.DeleteCardByID(id, cardID)
 
-// func (cc *ContactController) DeleteHandler(c *gin.Context) {
-// 	id := c.Param("id")
-// 	data, err := cc.service.DeleteContact(id)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"status":  http.StatusOK,
-// 		"message": "Success Delete Contact",
-// 		"data":    data,
-// 	})
-// }
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
+		Status:  exception.StatusSuccess,
+		Message: "Get All Cards",
+		Data:    data,
+	})
+
+}

@@ -6,8 +6,8 @@ import (
 )
 
 type UserPictureRepository interface {
-	Create(userPicture model.UserPicture) error
-	Get(id string) (model.UserPicture, error)
+	Create(userPicture *model.UserPicture) error
+	Get(id string) (*model.UserPicture, error)
 }
 
 type userPicture struct {
@@ -20,7 +20,7 @@ func NewUserPictureRepository(db *gorm.DB) UserPictureRepository {
 	}
 }
 
-func (u *userPicture) Create(userPicture model.UserPicture) error {
+func (u *userPicture) Create(userPicture *model.UserPicture) error {
 	userpc := model.UserPicture{}
 
 	if err := u.db.Create(&userpc).Error; err != nil {
@@ -29,11 +29,12 @@ func (u *userPicture) Create(userPicture model.UserPicture) error {
 	return nil
 }
 
-func (u *userPicture) Get(id string) (model.UserPicture, error) {
+func (u *userPicture) Get(id string) (*model.UserPicture, error) {
 	userPicure := model.UserPicture{}
-	if err := u.db.Where("id = ?", id).First(&userPicure).Error; err != nil {
 
-		return model.UserPicture{}, err
+	if err := u.db.Where("id = ?", id).First(&userPicure).Error; err != nil {
+		return nil, gorm.ErrRecordNotFound
 	}
-	return userPicure, nil
+
+	return &userPicure, nil
 }

@@ -9,6 +9,7 @@ import (
 type BillRepository interface {
 	Create(payload *model.Bill) (*model.Bill, error)
 	List(id string) ([]*model.Bill, error)
+	// GetByUserID(id string) ([]*model.Bill, error)
 }
 
 type billRepository struct {
@@ -46,3 +47,12 @@ func (b *billRepository) List(id string) ([]*model.Bill, error) {
 	}
 	return bills, nil
 }
+
+// func (b *billRepository) GetByUserID(id string) ([]*model.Bill, error) {
+// 	bills := []*model.Bill{}
+
+// 	if err := b.db.Model(&model.Bill{}).Where(constants.WHERE_BY_USER_ID, id).Preload("Bil").Find(&bills).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return bills, nil
+// }

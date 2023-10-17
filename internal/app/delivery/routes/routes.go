@@ -2,12 +2,10 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-faker/faker/v4"
 	"github.com/sakupay-apps/config"
 	"github.com/sakupay-apps/internal/app/delivery/controller"
 	"github.com/sakupay-apps/internal/app/delivery/middleware"
 	"github.com/sakupay-apps/internal/app/manager"
-	"github.com/sakupay-apps/internal/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,58 +31,6 @@ func SetupRouter(router *gin.Engine) error {
 	v1 := router.Group("/api/v1")
 	{
 		sakupay := v1.Group("/sakupay")
-		{
-			seed := sakupay.Group("/seed")
-			{
-				seed.GET("/users", func(c *gin.Context) {
-
-					users := []*model.User{
-						{
-							Username:    faker.Username(),
-							Email:       faker.Email(),
-							Password:    "admin",
-							FirstName:   faker.FirstName(),
-							LastName:    faker.LastName(),
-							PhoneNumber: faker.Phonenumber(),
-						},
-						{
-							Username:    faker.Username(),
-							Email:       faker.Email(),
-							Password:    "admin",
-							FirstName:   faker.FirstName(),
-							LastName:    faker.LastName(),
-							PhoneNumber: faker.Phonenumber(),
-						},
-						{
-							Username:    faker.Username(),
-							Email:       faker.Email(),
-							Password:    "admin",
-							FirstName:   faker.FirstName(),
-							LastName:    faker.LastName(),
-							PhoneNumber: faker.Phonenumber(),
-						},
-						{
-							Username:    faker.Username(),
-							Email:       faker.Email(),
-							Password:    "admin",
-							FirstName:   faker.FirstName(),
-							LastName:    faker.LastName(),
-							PhoneNumber: faker.Phonenumber(),
-						},
-						{
-							Username:    faker.Username(),
-							Email:       faker.Email(),
-							Password:    "admin",
-							FirstName:   faker.FirstName(),
-							LastName:    faker.LastName(),
-							PhoneNumber: faker.Phonenumber(),
-						},
-					}
-					config.DB.Create(&users)
-				})
-			}
-		}
-
 		{
 			auth := sakupay.Group("/auth")
 			{
@@ -113,8 +59,10 @@ func SetupRouter(router *gin.Engine) error {
 				// Bill
 				users.POST("/:id/bills", billController.CreateBill)
 				users.GET("/:id/bills", billController.FindAllBills)
-
+				// Card
+				users.GET("/:id/cards", cardController.FindAllCards)
 				users.POST("/:id/cards", cardController.AddCard)
+				users.DELETE("/:id/cards", cardController.DeleteCard)
 			}
 
 			// go func() {

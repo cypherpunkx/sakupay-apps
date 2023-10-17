@@ -12,17 +12,16 @@ import (
 
 type CardRepository interface {
 	Create(payload *model.Card) (*model.Card, error)
-	Paging(requestPaging dto.PaginationParam, queries ...string) ([]*model.Card, *dto.Paging, error) 
-	List() ([]*model.Card, error)
-	 Get(id string) (*model.Card, error)
-	 Delete(id string) (*model.Card, error)
-
+	Paging(requestPaging dto.PaginationParam, queries ...string) ([]*model.Card, *dto.Paging, error)
+	ListCards(id string) ([]*model.Card, error)
+	Get(id string) (*model.Card, error)
+	Delete(id string) (*model.Card, error)
+	DeleteCardID(userID, cardID string) (*model.Card, error)
 }
 
 type cardRepository struct {
 	db *gorm.DB
 }
-
 
 func NewCardRepository(db *gorm.DB) CardRepository {
 	return &cardRepository{
@@ -33,11 +32,13 @@ func NewCardRepository(db *gorm.DB) CardRepository {
 func (cr *cardRepository) Create(payload *model.Card) (*model.Card, error) {
 
 	card := model.Card{
-		ID:           payload.ID,
-		UserID:       payload.UserID,
-		CardNumber:  payload.CardNumber,
+		ID:             payload.ID,
+		UserID:         payload.UserID,
+		CardNumber:     payload.CardNumber,
 		CardholderName: payload.CardholderName,
-		ExpirationDate:   payload.ExpirationDate,
+		ExpirationDate: payload.ExpirationDate,
+		Balance:        payload.Balance,
+		CVV:            payload.CVV,
 	}
 
 	if err := cr.db.Create(&card).Error; err != nil {
@@ -45,6 +46,16 @@ func (cr *cardRepository) Create(payload *model.Card) (*model.Card, error) {
 	}
 
 	return &card, nil
+}
+
+func (cr *cardRepository) ListCards(id string) ([]*model.Card, error) {
+	cards := []*model.Card{}
+
+	if err := cr.db.Model(&cards).Where(constants.WHERE_BY_USER_ID, id).Preload("Users").Find(&cards).Error; err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return cards, nil
 }
 
 func (cr *cardRepository) Paging(requestPaging dto.PaginationParam, queries ...string) ([]*model.Card, *dto.Paging, error) {
@@ -65,17 +76,6 @@ func (cr *cardRepository) Paging(requestPaging dto.PaginationParam, queries ...s
 
 }
 
-func (cr *cardRepository) List() ([]*model.Card, error) {
-
-	var cards []*model.Card
-
-	if err := cr.db.Find(&cards).Error; err != nil {
-		return nil, err
-	}
-
-	return cards, nil
-}
-
 func (cr *cardRepository) Get(id string) (*model.Card, error) {
 	var card model.Card
 
@@ -86,30 +86,20 @@ func (cr *cardRepository) Get(id string) (*model.Card, error) {
 	return &card, nil
 }
 
-// func (c *cardRepository) Update(id string, payload *model.Card) (*model.Card, error) {
-
-// 	card := model.Card{}
-
-// 	err := c.db.Model(&card).Where(constants.WHERE_BY_ID, id).Clauses(clause.Returning{}).Updates(model.Card{
-// 		ID:           payload.ID,
-// 		UserID:       payload.UserID,
-// 		CardNumber: payload.CardNumber,
-// 		CardholderName: payload.CardholderName,
-// 		ExpirationDate: payload.ExpirationDate,
-// 		CVV: payload.CVV,
-// 	}).Error
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &card, nil
-// }
-
 func (c *cardRepository) Delete(id string) (*model.Card, error) {
 	card := model.Card{}
 
 	if err := c.db.Clauses(clause.Returning{}).Where(constants.WHERE_BY_ID, id).Delete(&card).Error; err != nil {
+		return nil, err
+	}
+
+	return &card, nil
+}
+
+func (c *cardRepository) DeleteCardID(userID, cardID string) (*model.Card, error) {
+	card := model.Card{}
+
+	if err := c.db.Clauses(clause.Returning{}).Where(constants.WHERE_BY_USER_ID_AND_CARD_ID, userID, cardID).Delete(&card).Error; err != nil {
 		return nil, err
 	}
 

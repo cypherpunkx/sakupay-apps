@@ -12,11 +12,17 @@ import (
 	"github.com/sakupay-apps/utils/exception"
 )
 
-type WalletController struct {
+type walletController struct {
 	service service.WalletService
 }
 
-func (w *WalletController) CreateHandler(c *gin.Context) {
+func NewWalletController(service service.WalletService) *walletController {
+	return &walletController{
+		service: service,
+	}
+}
+
+func (w *walletController) CreateHandler(c *gin.Context) {
 	payload := model.Wallet{}
 
 	payload.ID = common.GenerateUUID()
@@ -56,10 +62,4 @@ func (w *WalletController) CreateHandler(c *gin.Context) {
 		Message: "Create Wallet",
 		Data:    data,
 	})
-}
-
-func NewWalletController(wlService service.WalletService) *WalletController {
-	return &WalletController{
-		service: wlService,
-	}
 }

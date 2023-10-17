@@ -6,11 +6,13 @@ import (
 
 	"github.com/sakupay-apps/internal/app/repository"
 	"github.com/sakupay-apps/internal/model"
+	"github.com/sakupay-apps/utils/exception"
+	"gorm.io/gorm"
 )
 
 type UserPictureService interface {
-	UploadUserPicture(userPicture model.UserPicture, file *multipart.File, extFile string) error
-	FindUserPictureById(id string) (model.UserPicture, error)
+	UploadUserPicture(userPicture *model.UserPicture, file *multipart.File, extFile string) error
+	FindUserPictureById(id string) (*model.UserPicture, error)
 }
 
 type userPictureService struct {
@@ -27,7 +29,8 @@ func NewUserPictureService(userRepoPic repository.UserPictureRepository, fileRep
 	}
 }
 
-func (u *userPictureService) UploadUserPicture(userPicture model.UserPicture, file *multipart.File, extFile string) error {
+func (u *userPictureService) UploadUserPicture(userPicture *model.UserPicture, file *multipart.File, extFile string) error {
+
 	userCred, err := u.userService.FindUserByID(userPicture.UserID)
 	if err != nil {
 		return err
@@ -41,16 +44,17 @@ func (u *userPictureService) UploadUserPicture(userPicture model.UserPicture, fi
 	}
 	userPicture.FileLocation = filePath
 	err = u.userRepoPic.Create(userPicture)
+
 	if err != nil {
-		return fmt.Errorf("Failed Upload : %s", err.Error())
+		return exception.ErrFailedUpload
 	}
 	return nil
 }
 
-func (u *userPictureService) FindUserPictureById(id string) (model.UserPicture, error) {
+func (u *userPictureService) FindUserPictureById(id string) (*model.UserPicture, error) {
 	userPicture, err := u.userRepoPic.Get(id)
 	if err != nil {
-		return model.UserPicture{}, fmt.Errorf("Failed Get Picture By Id : %s", err.Error())
+		return nil, gorm.ErrRecordNotFound
 	}
 	return userPicture, nil
 }
