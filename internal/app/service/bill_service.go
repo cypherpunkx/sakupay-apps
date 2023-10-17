@@ -14,14 +14,16 @@ type BillService interface {
 }
 
 type billService struct {
-	billRepo repository.BillRepository
-	userRepo repository.UserRepository
+	billRepo        repository.BillRepository
+	billDetailsRepo repository.BillDetailsRepository
+	userRepo        repository.UserRepository
 }
 
-func NewBillService(billRepo repository.BillRepository, userRepo repository.UserRepository) BillService {
+func NewBillService(billRepo repository.BillRepository, userRepo repository.UserRepository, billDetailsRepo repository.BillDetailsRepository) BillService {
 	return &billService{
-		billRepo: billRepo,
-		userRepo: userRepo,
+		billRepo:        billRepo,
+		userRepo:        userRepo,
+		billDetailsRepo: billDetailsRepo,
 	}
 }
 
@@ -31,6 +33,10 @@ func (b *billService) CreateNewBill(payload *model.Bill) (*dto.BillResponse, err
 
 	if err != nil {
 		return nil, gorm.ErrRecordNotFound
+	}
+
+	if payload.Total > user.Wallet.Balance {
+		return nil, exception.ErrNotEnoughBalance
 	}
 
 	bill, err := b.billRepo.Create(payload)
@@ -57,6 +63,18 @@ func (s *billService) GetAllBills(id string) ([]*dto.BillResponse, error) {
 		return nil, gorm.ErrRecordNotFound
 	}
 
+	bill, err := s.billRepo.Get(user.ID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	billDetail, err := s.billDetailsRepo.Get(bill.ID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
 	bills, err := s.billRepo.List(user.ID)
 
 	if err != nil {
@@ -66,11 +84,11 @@ func (s *billService) GetAllBills(id string) ([]*dto.BillResponse, error) {
 	billResponses := []*dto.BillResponse{}
 
 	for _, bill := range bills {
-		if bill.UserID == user.ID {
+		if bill.UserID == user.ID && bill.ID == billDetail.BillID {
 			billResponses = append(billResponses, &dto.BillResponse{
 				ID:          bill.ID,
 				User:        *user,
-				BillDetails: bill.Billdetails,
+				BillDetails: *billDetail,
 				Total:       bill.Total,
 				DueDate:     bill.DueDate,
 			})

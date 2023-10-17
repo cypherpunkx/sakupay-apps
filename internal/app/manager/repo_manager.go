@@ -13,6 +13,7 @@ type RepoManager interface {
 	FileRepo() repository.FileRepository
 	UserPictureRepo() repository.UserPictureRepository
 	CardRepo() repository.CardRepository
+	BillDetailsRepo() repository.BillDetailsRepository
 }
 
 type repoManager struct {
@@ -51,4 +52,8 @@ func (m *repoManager) UserPictureRepo() repository.UserPictureRepository {
 
 func (m *repoManager) CardRepo() repository.CardRepository {
 	return repository.NewCardRepository(m.infraManager.Conn())
+}
+
+func (m *repoManager) BillDetailsRepo() repository.BillDetailsRepository {
+	return repository.NewBillDetailsRepository(m.infraManager.Conn())
 }

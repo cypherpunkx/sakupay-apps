@@ -7,7 +7,7 @@ import (
 )
 
 type BillDetailsRepository interface {
-	GetBillDetailsById(id string) ([]*model.BillDetails, error)
+	Get(id string) (*model.BillDetails, error)
 }
 
 type billDetailsRepository struct {
@@ -20,12 +20,12 @@ func NewBillDetailsRepository(db *gorm.DB) BillDetailsRepository {
 	}
 }
 
-func (b *billDetailsRepository) GetBillDetailsById(id string) ([]*model.BillDetails, error) {
-	billDetails := []*model.BillDetails{}
+func (b *billDetailsRepository) Get(id string) (*model.BillDetails, error) {
+	billDetails := model.BillDetails{}
 
-	if err := b.db.Where(constants.WHERE_BY_BILL_ID, id).Find(&billDetails).Error; err != nil {
+	if err := b.db.Where(constants.WHERE_BY_BILL_ID, id).First(&billDetails).Error; err != nil {
 		return nil, err
 	}
 
-	return billDetails, nil
+	return &billDetails, nil
 }

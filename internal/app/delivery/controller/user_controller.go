@@ -68,7 +68,7 @@ func (ctr *UserController) Registration(c *gin.Context) {
 	c.JSON(http.StatusCreated, dto.Response{
 		Code:    http.StatusCreated,
 		Status:  exception.StatusSuccess,
-		Message: "Get All Users",
+		Message: "Registration",
 		Data:    data,
 	})
 }
@@ -318,7 +318,7 @@ func (ctr *UserController) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.TokenResponse{
 		Code:    http.StatusOK,
 		Status:  exception.StatusSuccess,
-		Message: "Login Successfuly",
+		Message: "Login Successfully",
 		Token:   data,
 	})
 }

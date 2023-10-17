@@ -37,7 +37,7 @@ func (m *serviceManager) TransactionService() service.TransactionService {
 }
 
 func (m *serviceManager) BillService() service.BillService {
-	return service.NewBillService(m.repoManager.BillRepo(), m.repoManager.UserRepo())
+	return service.NewBillService(m.repoManager.BillRepo(), m.repoManager.UserRepo(), m.repoManager.BillDetailsRepo())
 }
 
 func (m *serviceManager) ContactService() service.ContactService {

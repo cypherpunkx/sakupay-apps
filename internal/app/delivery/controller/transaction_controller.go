@@ -110,7 +110,7 @@ func (ctr *transactionController) FindAllTransactions(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.Response{
 		Code:    http.StatusOK,
 		Status:  exception.StatusSuccess,
-		Message: "Get User By ID",
+		Message: "Get All Transactions",
 		Data:    data,
 	})
 }
@@ -127,6 +127,15 @@ func (ctr *transactionController) FindTransaction(c *gin.Context) {
 				Code:    http.StatusInternalServerError,
 				Status:  exception.StatusInternalServer,
 				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
+
+		if errors.Is(err, gorm.ErrInvalidTransaction) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrInvalidTransaction.Error(),
 			})
 			return
 		}

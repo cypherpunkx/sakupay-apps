@@ -47,10 +47,18 @@ func (b *billController) CreateBill(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, exception.ErrFailedCreate) {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
-				Code:   http.StatusInternalServerError,
-				Status: exception.StatusInternalServer,
-
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
 				Message: exception.ErrFailedCreate.Error(),
+			})
+			return
+		}
+
+		if errors.Is(err, gorm.ErrInvalidTransaction) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrInvalidTransaction.Error(),
 			})
 			return
 		}
@@ -105,8 +113,8 @@ func (b *billController) FindAllBills(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.Response{
-		Code:    http.StatusCreated,
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
 		Status:  exception.StatusSuccess,
 		Message: "Get All Bills",
 		Data:    data,

@@ -2,9 +2,6 @@ package model
 
 import (
 	"time"
-
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type User struct {
@@ -19,10 +16,4 @@ type User struct {
 	RegistrationDate time.Time `gorm:"type:timestamp;default:current_timestamp" json:"registrationDate" binding:"omitempty"`
 	ProfilePicture   []byte    `json:"profilePicture" binding:"omitempty"`
 	LastLogin        time.Time `gorm:"type:timestamp;default:current_timestamp" json:"lastLogin" binding:"omitempty"`
-}
-
-func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	u.ID = uuid.New().String()
-
-	return
 }

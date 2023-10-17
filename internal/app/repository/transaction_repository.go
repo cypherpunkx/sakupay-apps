@@ -53,7 +53,6 @@ func (r *transactionRepository) Create(payload *model.Transaction) (*model.Trans
 		}
 
 		if transaction.TransactionType == "send" {
-
 			if err := tx.Create(&transaction).Error; err != nil {
 				return gorm.ErrInvalidTransaction
 			}
@@ -79,7 +78,7 @@ func (r *transactionRepository) Create(payload *model.Transaction) (*model.Trans
 func (r *transactionRepository) Get(id string) (*model.Transaction, error) {
 	transaction := model.Transaction{}
 
-	if err := r.db.Where(constants.WHERE_BY_ID, id).Preload("User").First(&transaction).Error; err != nil {
+	if err := r.db.Where(constants.WHERE_BY_ID, id).First(&transaction).Error; err != nil {
 		return nil, gorm.ErrRecordNotFound
 	}
 
