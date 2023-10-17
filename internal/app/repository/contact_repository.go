@@ -15,6 +15,7 @@ import (
 type ContactRepository interface {
 	BaseRepository[model.Contact]
 	BaseRepositoryPaging[model.Contact]
+	
 }
 
 type contactRepository struct {

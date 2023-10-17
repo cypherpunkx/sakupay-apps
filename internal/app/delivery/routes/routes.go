@@ -22,6 +22,8 @@ func SetupRouter(router *gin.Engine) error {
 	billController := controller.NewBillController(repoManager.BillService(), repoManager.UserService())
 	// Contact Controller
 	contactController := controller.NewContactController(repoManager.ContactService())
+        // Card Controller
+	cardController := controller.NewCardController(repoManager.CardService())
 
 	v1 := router.Group("/api/v1")
 	{
@@ -46,6 +48,8 @@ func SetupRouter(router *gin.Engine) error {
 				// users.GET("/:user_id/contact/:contact_id", contactController.GetHandler)
 				// users.PUT("/:id/contact", contactController.UpdateHandler)
 				// users.DELETE("/:id/contact", contactController.DeleteHandler)
+				users.POST("/:id/cards", cardController.AddCard)
+				//users.GET("/", cardController.)
 			}
 		}
 	}

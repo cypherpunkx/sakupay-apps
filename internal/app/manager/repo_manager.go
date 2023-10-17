@@ -9,6 +9,7 @@ type RepoManager interface {
 	TransactionRepo() repository.TransactionRepository
 	BillRepo() repository.BillRepository
 	ContactRepo() repository.ContactRepository
+	CardRepo() repository.CardRepository
 }
 
 type repoManager struct {
@@ -35,4 +36,8 @@ func (m *repoManager) BillRepo() repository.BillRepository {
 
 func (m *repoManager) ContactRepo() repository.ContactRepository {
 	return repository.NewContactRepository(m.infraManager.Conn())
+}
+
+func (m *repoManager) CardRepo() repository.CardRepository {
+	return repository.NewCardRepository(m.infraManager.Conn())
 }

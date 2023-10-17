@@ -36,7 +36,7 @@ func (s *userService) RegisterNewUser(payload *model.User) (*dto.UserResponse, e
 		return nil, exception.ErrFailedCreate
 	}
 
-	for _, user := range users {
+	 for _, user := range users {
 		if user.Username == payload.Username {
 			return nil, exception.ErrUsernameAlreadyExist
 		}
