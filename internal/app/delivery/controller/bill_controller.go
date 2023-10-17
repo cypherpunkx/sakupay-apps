@@ -54,6 +54,15 @@ func (b *billController) CreateBill(c *gin.Context) {
 			return
 		}
 
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
+
 		if errors.Is(err, gorm.ErrInvalidTransaction) {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
 				Code:    http.StatusInternalServerError,

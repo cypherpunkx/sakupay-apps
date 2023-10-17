@@ -1,5 +1,5 @@
 GET http://localhost:8080/api/v1/sakupay/users/ HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTYWt1cGF5IiwiZXhwIjoxNjk3NTc0MjY3LCJpYXQiOjE2OTc1NzA2NjcsIlVzZXJuYW1lIjoiYWRtaW4ifQ.GVqOlQqnwoBAzDg0T2F7IPxO_jmNeCuS1eKKILQLZDM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTYWt1cGF5IiwiZXhwIjoxNjk3NTgyMTY2LCJpYXQiOjE2OTc1Nzg1NjYsIlVzZXJuYW1lIjoiYXBpIn0.4kLqF2tqpzJzOhOVU0z9vbBJhTvm7bnBxt82YCwb7DQ
 ###
 GET http://localhost:8080/api/v1/sakupay/users/ebe5df1e-c886-4849-8741-0fc2a1e511e/bills HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTYWt1cGF5IiwiZXhwIjoxNjk3NTczMDg3LCJpYXQiOjE2OTc1Njk0ODcsIlVzZXJuYW1lIjoicmFsc3MifQ.IXYrljsVzHcvMtSCgyCYeBMYUT_lmYKVTv7Weve7TjM
@@ -16,8 +16,20 @@ Content-Type: application/json
         "merchant" : "shopee"
     },
     "total" : 600000,
-    "dueData" : "2023-10-18T02:10:47.623588Z",
+    "dueDate" : "2023-10-18T02:10:47.623588Z",
     "status" : "true"
+}
+###
+GET http://localhost:8080/api/v1/sakupay/users/7499a3aa-24ad-4299-b683-8c266dcbb1c7/cards HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTYWt1cGF5IiwiZXhwIjoxNjk3NTgyMTY2LCJpYXQiOjE2OTc1Nzg1NjYsIlVzZXJuYW1lIjoiYXBpIn0.4kLqF2tqpzJzOhOVU0z9vbBJhTvm7bnBxt82YCwb7DQ
+Content-Type: application/json
+
+{
+   "cardNumber":"3213212235222523",
+   "cardHolderName": "mandiri",
+   "expirationDate":"2023-10-18T02:10:47.623588Z",
+   "balance":50000,
+   "cvv":"213"
 }
 
 ###
@@ -25,20 +37,20 @@ POST http://localhost:8080/api/v1/sakupay/auth/register HTTP/1.1
 Content-Type: application/json
 
 {
-	"username":"admin",
-	"email":"littleey7@gmail.com",
-	"password":"admin",
+	"username":"api",
+	"email":"littleey27@gmail.com",
+	"password":"api",
 	"firstName":"Rafly",
 	"lastName":"Mahendra",
-	"PhoneNumber":"0872772712"
+	"PhoneNumber":"08727729712"
 }
 ###
 POST http://localhost:8080/api/v1/sakupay/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
-	"username":"admin",
-	"password":"admin"
+	"username":"api",
+	"password":"api"
 }
 ###
 GET http://localhost:8080/api/v1/sakupay/users/c371312f-c21c-4fa8-af47-1c83f91583cb HTTP/1.1

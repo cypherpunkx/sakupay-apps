@@ -45,7 +45,7 @@ func (ctr *UserController) Registration(c *gin.Context) {
 		return
 	}
 
-	data, err := ctr.service.RegisterNewUser(&payload)
+	_, err := ctr.service.RegisterNewUser(&payload)
 
 	if err != nil {
 		if errors.Is(err, exception.ErrFailedCreate) {
@@ -68,8 +68,7 @@ func (ctr *UserController) Registration(c *gin.Context) {
 	c.JSON(http.StatusCreated, dto.Response{
 		Code:    http.StatusCreated,
 		Status:  exception.StatusSuccess,
-		Message: "Registration",
-		Data:    data,
+		Message: "Register Successful",
 	})
 }
 
@@ -318,7 +317,7 @@ func (ctr *UserController) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.TokenResponse{
 		Code:    http.StatusOK,
 		Status:  exception.StatusSuccess,
-		Message: "Login Successfully",
+		Message: "Login Successful",
 		Token:   data,
 	})
 }

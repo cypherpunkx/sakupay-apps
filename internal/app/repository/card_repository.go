@@ -51,7 +51,7 @@ func (cr *cardRepository) Create(payload *model.Card) (*model.Card, error) {
 func (cr *cardRepository) ListCards(id string) ([]*model.Card, error) {
 	cards := []*model.Card{}
 
-	if err := cr.db.Model(&cards).Where(constants.WHERE_BY_USER_ID, id).Preload("Users").Find(&cards).Error; err != nil {
+	if err := cr.db.Model(&cards).Where(constants.WHERE_BY_USER_ID, id).Find(&cards).Error; err != nil {
 		return nil, gorm.ErrRecordNotFound
 	}
 

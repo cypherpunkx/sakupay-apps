@@ -34,7 +34,7 @@ func (r *transactionRepository) Create(payload *model.Transaction) (*model.Trans
 
 	r.db.Transaction(func(tx *gorm.DB) error {
 		wallet := model.Wallet{}
-		if transaction.TransactionType == "deposit" {
+		if transaction.TransactionType == "deposit" || transaction.TransactionType == "receive" {
 			if err := tx.Create(&transaction).Error; err != nil {
 				return gorm.ErrInvalidTransaction
 			}
@@ -52,7 +52,7 @@ func (r *transactionRepository) Create(payload *model.Transaction) (*model.Trans
 			return nil
 		}
 
-		if transaction.TransactionType == "send" {
+		if transaction.TransactionType == "send" || transaction.TransactionType == "withdrawal" {
 			if err := tx.Create(&transaction).Error; err != nil {
 				return gorm.ErrInvalidTransaction
 			}

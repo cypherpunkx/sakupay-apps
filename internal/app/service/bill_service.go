@@ -46,8 +46,15 @@ func (b *billService) CreateNewBill(payload *model.Bill) (*dto.BillResponse, err
 	}
 
 	billResponse := dto.BillResponse{
-		ID:          bill.ID,
-		User:        *user,
+		ID: bill.ID,
+		User: model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
 		BillDetails: bill.Billdetails,
 		Total:       bill.Total,
 		DueDate:     bill.DueDate,
@@ -86,8 +93,15 @@ func (s *billService) GetAllBills(id string) ([]*dto.BillResponse, error) {
 	for _, bill := range bills {
 		if bill.UserID == user.ID && bill.ID == billDetail.BillID {
 			billResponses = append(billResponses, &dto.BillResponse{
-				ID:          bill.ID,
-				User:        *user,
+				ID: bill.ID,
+				User: model.User{
+					ID:       user.ID,
+					Username: user.Username,
+					Wallet: model.Wallet{
+						Name:    user.Wallet.Name,
+						Balance: user.Wallet.Balance,
+					},
+				},
 				BillDetails: *billDetail,
 				Total:       bill.Total,
 				DueDate:     bill.DueDate,

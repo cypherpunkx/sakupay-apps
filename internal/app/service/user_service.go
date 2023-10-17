@@ -33,10 +33,10 @@ func (s *userService) RegisterNewUser(payload *model.User) (*dto.UserResponse, e
 	users, err := s.repo.List()
 
 	if err != nil {
-		return nil, exception.ErrFailedCreate
+		return nil, gorm.ErrRecordNotFound
 	}
 
-	 for _, user := range users {
+	for _, user := range users {
 		if user.Username == payload.Username {
 			return nil, exception.ErrUsernameAlreadyExist
 		}
@@ -115,14 +115,16 @@ func (s *userService) FindAllUser(requestPaging dto.PaginationParam, queries ...
 	for _, user := range users {
 
 		userResponse := dto.UserResponse{
-			ID:               user.ID,
-			Username:         user.Username,
-			Email:            user.Email,
-			Password:         user.Password,
-			FirstName:        user.FirstName,
-			LastName:         user.Username,
-			PhoneNumber:      user.PhoneNumber,
-			Wallet:           user.Wallet,
+			ID:          user.ID,
+			Username:    user.Username,
+			Email:       user.Email,
+			FirstName:   user.FirstName,
+			LastName:    user.Username,
+			PhoneNumber: user.PhoneNumber,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
 			RegistrationDate: user.RegistrationDate,
 			ProfilePicture:   user.ProfilePicture,
 			LastLogin:        user.LastLogin,
@@ -149,14 +151,16 @@ func (s *userService) RemoveUser(id string) (*dto.UserResponse, error) {
 	}
 
 	userResponse := dto.UserResponse{
-		ID:               user.ID,
-		Username:         user.Username,
-		Email:            user.Email,
-		Password:         user.Password,
-		FirstName:        user.FirstName,
-		LastName:         user.Username,
-		PhoneNumber:      user.PhoneNumber,
-		Wallet:           user.Wallet,
+		ID:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		FirstName:   user.FirstName,
+		LastName:    user.Username,
+		PhoneNumber: user.PhoneNumber,
+		Wallet: model.Wallet{
+			Name:    user.Wallet.Name,
+			Balance: user.Wallet.Balance,
+		},
 		RegistrationDate: user.RegistrationDate,
 		ProfilePicture:   user.ProfilePicture,
 		LastLogin:        user.LastLogin,
@@ -180,14 +184,16 @@ func (s *userService) UpdateUserByID(id string, payload *model.User) (*dto.UserR
 	}
 
 	userResponse := dto.UserResponse{
-		ID:               user.ID,
-		Username:         user.Username,
-		Email:            user.Email,
-		Password:         user.Password,
-		FirstName:        user.FirstName,
-		LastName:         user.Username,
-		PhoneNumber:      user.PhoneNumber,
-		Wallet:           user.Wallet,
+		ID:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		FirstName:   user.FirstName,
+		LastName:    user.Username,
+		PhoneNumber: user.PhoneNumber,
+		Wallet: model.Wallet{
+			Name:    user.Wallet.Name,
+			Balance: user.Wallet.Balance,
+		},
 		RegistrationDate: user.RegistrationDate,
 		ProfilePicture:   user.ProfilePicture,
 		LastLogin:        user.LastLogin,

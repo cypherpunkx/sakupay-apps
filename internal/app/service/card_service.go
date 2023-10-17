@@ -54,8 +54,12 @@ func (cs *cardService) RegisterNewCard(payload *model.Card) (*dto.CardResponse, 
 	}
 
 	cardResponses := dto.CardResponse{
-		ID:             card.ID,
-		User:           *user,
+		ID: card.ID,
+		User: model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Wallet:   user.Wallet,
+		},
 		CardNumber:     card.CardNumber,
 		CardholderName: card.CardholderName,
 		Balance:        card.Balance,
@@ -85,8 +89,12 @@ func (cs *cardService) FindAllCardList(id string) ([]*dto.CardResponse, error) {
 	for _, card := range cards {
 		if card.UserID == user.ID {
 			cardResponses = append(cardResponses, &dto.CardResponse{
-				ID:             card.ID,
-				User:           *user,
+				ID: card.ID,
+				User: model.User{
+					ID:       user.ID,
+					Username: user.Username,
+					Wallet:   user.Wallet,
+				},
 				CardNumber:     card.CardNumber,
 				Balance:        card.Balance,
 				CardholderName: card.CardholderName,
@@ -114,8 +122,15 @@ func (cs *cardService) FindCardByID(id string) (*dto.CardResponse, error) {
 	}
 
 	cardResponse := dto.CardResponse{
-		ID:             card.ID,
-		User:           *user,
+		ID: card.ID,
+		User: model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
 		CardNumber:     card.CardNumber,
 		CardholderName: card.CardholderName,
 		Balance:        card.Balance,
@@ -142,8 +157,15 @@ func (cs *cardService) DeleteCardByID(userID, cardID string) (*dto.CardResponse,
 	userCard, err := cs.cardRepo.DeleteCardID(user.ID, card.ID)
 
 	cardResponse := dto.CardResponse{
-		ID:             userCard.ID,
-		User:           *user,
+		ID: userCard.ID,
+		User: model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
 		CardNumber:     userCard.CardNumber,
 		CardholderName: userCard.CardholderName,
 		ExpirationDate: userCard.ExpirationDate,

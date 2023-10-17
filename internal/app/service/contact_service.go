@@ -55,8 +55,15 @@ func (s *contactService) RegisterNewContact(payload *model.Contact) (*dto.Contac
 	}
 
 	contactResponses := dto.ContactResponse{
-		ID:           contact.ID,
-		User:         *user,
+		ID: contact.ID,
+		User: model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
 		PhoneNumber:  contact.PhoneNumber,
 		Relationship: contact.Relationship,
 		IsFavorite:   contact.IsFavorite,
@@ -84,8 +91,15 @@ func (s *contactService) FindAllContactList(id string) ([]*dto.ContactResponse, 
 	for _, contact := range contacts {
 		if contact.UserID == user.ID {
 			contactResponses = append(contactResponses, &dto.ContactResponse{
-				ID:           contact.ID,
-				User:         *user,
+				ID: contact.ID,
+				User: model.User{
+					ID:       user.ID,
+					Username: user.Username,
+					Wallet: model.Wallet{
+						Name:    user.Wallet.Name,
+						Balance: user.Wallet.Balance,
+					},
+				},
 				PhoneNumber:  contact.PhoneNumber,
 				Relationship: contact.Relationship,
 				IsFavorite:   contact.IsFavorite,
@@ -111,8 +125,15 @@ func (s *contactService) FindContactById(id string) (*dto.ContactResponse, error
 	}
 
 	contactResponse := dto.ContactResponse{
-		ID:           contact.ID,
-		User:         *user,
+		ID: contact.ID,
+		User: model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
 		PhoneNumber:  contact.PhoneNumber,
 		Relationship: contact.PhoneNumber,
 		IsFavorite:   contact.IsFavorite,
@@ -142,8 +163,15 @@ func (s *contactService) FindContactByUser(userID, contactID string) (*dto.Conta
 	}
 
 	contactResponse := dto.ContactResponse{
-		ID:           userContact.ID,
-		User:         *user,
+		ID: userContact.ID,
+		User: model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
 		PhoneNumber:  userContact.PhoneNumber,
 		Relationship: userContact.PhoneNumber,
 		IsFavorite:   userContact.IsFavorite,
@@ -177,8 +205,15 @@ func (s *contactService) DeleteContactByUser(userID, contactID string) (*dto.Con
 	}
 
 	contactResponse := dto.ContactResponse{
-		ID:           userContact.ID,
-		User:         *user,
+		ID: userContact.ID,
+		User: model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
 		PhoneNumber:  userContact.PhoneNumber,
 		Relationship: userContact.PhoneNumber,
 		IsFavorite:   userContact.IsFavorite,

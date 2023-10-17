@@ -46,8 +46,15 @@ func (s *transactionService) CreateNewTransaction(payload *model.Transaction) (*
 	}
 
 	transactionResponse := dto.TransactionResponse{
-		ID:              transaction.ID,
-		User:            *user,
+		ID: transaction.ID,
+		User: model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
 		TransactionType: transaction.TransactionType,
 		Amount:          transaction.Amount,
 		Description:     transaction.Description,
@@ -76,9 +83,16 @@ func (s *transactionService) TransactionHistory(id string) ([]*dto.TransactionRe
 	for _, transaction := range transactions {
 		if transaction.UserID == user.ID {
 			transactionResponses = append(transactionResponses, &dto.TransactionResponse{
-				ID:              transaction.ID,
+				ID: transaction.ID,
+				User: model.User{
+					ID:       user.ID,
+					Username: user.Username,
+					Wallet: model.Wallet{
+						Name:    user.Wallet.Name,
+						Balance: user.Wallet.Balance,
+					},
+				},
 				TransactionType: transaction.TransactionType,
-				User:            *user,
 				Amount:          transaction.Amount,
 				Description:     transaction.Description,
 				Timestamp:       transaction.Timestamp,
@@ -110,8 +124,15 @@ func (s *transactionService) FindTransactionByUser(userID, transactionID string)
 	}
 
 	transactionResponse := dto.TransactionResponse{
-		ID:              userTransaction.ID,
-		User:            *user,
+		ID: userTransaction.ID,
+		User: model.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
 		TransactionType: userTransaction.TransactionType,
 		Amount:          userTransaction.Amount,
 		Description:     userTransaction.Description,
