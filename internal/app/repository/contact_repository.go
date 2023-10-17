@@ -15,6 +15,9 @@ import (
 type ContactRepository interface {
 	BaseRepository[model.Contact]
 	BaseRepositoryPaging[model.Contact]
+	GetContactByID(userID, contactID string) (*model.Contact, error)
+	ListContacts(id string) ([]*model.Contact, error)
+	DeleteContactByID(userID, contactID string) (*model.Contact, error)
 }
 
 type contactRepository struct {
@@ -73,10 +76,30 @@ func (r *contactRepository) List() ([]*model.Contact, error) {
 	return contacts, nil
 }
 
+func (r *contactRepository) ListContacts(id string) ([]*model.Contact, error) {
+	contacts := []*model.Contact{}
+
+	if err := r.db.Where(constants.WHERE_BY_USER_ID, id).Find(&contacts).Error; err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return contacts, nil
+}
+
 func (r *contactRepository) Get(id string) (*model.Contact, error) {
 	var contact model.Contact
 
 	if err := r.db.Where(constants.WHERE_BY_ID, id).First(&contact).Error; err != nil {
+		return nil, err
+	}
+
+	return &contact, nil
+}
+
+func (r *contactRepository) GetContactByID(userID, contactID string) (*model.Contact, error) {
+	var contact model.Contact
+
+	if err := r.db.Where("user_id = ? AND id = ?").First(&contact).Error; err != nil {
 		return nil, err
 	}
 
@@ -106,6 +129,16 @@ func (c *contactRepository) Delete(id string) (*model.Contact, error) {
 	contact := model.Contact{}
 
 	if err := c.db.Clauses(clause.Returning{}).Where(constants.WHERE_BY_ID, id).Delete(&contact).Error; err != nil {
+		return nil, err
+	}
+
+	return &contact, nil
+}
+
+func (c *contactRepository) DeleteContactByID(userID, contactID string) (*model.Contact, error) {
+	contact := model.Contact{}
+
+	if err := c.db.Clauses(clause.Returning{}).Where("user_id = ? AND id = ?", userID, contactID).Delete(&contact).Error; err != nil {
 		return nil, err
 	}
 

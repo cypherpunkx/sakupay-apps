@@ -7,9 +7,9 @@ import (
 )
 
 type BillResponse struct {
-	ID          string              `json:"id"`
-	User        model.User          `json:"user"`
-	BillDetails []model.BillDetails `json:"billDetails"`
-	Total       float64             `json:"total"`
-	DueDate     time.Time           `json:"dueDate"`
+	ID          string            `json:"id"`
+	User        model.User        `json:"user"`
+	BillDetails model.BillDetails `json:"billDetails"`
+	Total       float64           `json:"total"`
+	DueDate     time.Time         `json:"dueDate"`
 }

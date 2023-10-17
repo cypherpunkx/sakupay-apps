@@ -44,6 +44,8 @@ func FieldErrors(err error) map[string]string {
 				errorMap[fieldName] = fmt.Sprintf("%s is invalid", fieldName)
 			}
 		}
+	} else {
+		errorMap["error"] = err.Error()
 	}
 
 	return errorMap

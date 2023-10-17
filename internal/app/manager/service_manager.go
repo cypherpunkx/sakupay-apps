@@ -10,6 +10,7 @@ type ServiceManager interface {
 	TransactionService() service.TransactionService
 	BillService() service.BillService
 	ContactService() service.ContactService
+	UserPictureService() service.UserPictureService
 }
 
 type serviceManager struct {
@@ -40,4 +41,8 @@ func (m *serviceManager) BillService() service.BillService {
 
 func (m *serviceManager) ContactService() service.ContactService {
 	return service.NewContactService(m.repoManager.ContactRepo(), m.repoManager.UserRepo())
+}
+
+func (m *serviceManager) UserPictureService() service.UserPictureService {
+	return service.NewUserPictureService(m.repoManager.UserPictureRepo(), m.repoManager.FileRepo(), m.UserService())
 }

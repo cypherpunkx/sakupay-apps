@@ -2,11 +2,13 @@ package repository
 
 import (
 	"github.com/sakupay-apps/internal/model"
+	"github.com/sakupay-apps/utils/constants"
 	"gorm.io/gorm"
 )
 
 type BillRepository interface {
 	Create(payload *model.Bill) (*model.Bill, error)
+	List(id string) ([]*model.Bill, error)
 }
 
 type billRepository struct {
@@ -26,6 +28,8 @@ func (b *billRepository) Create(payload *model.Bill) (*model.Bill, error) {
 		Billdetails: payload.Billdetails,
 		Total:       payload.Total,
 		DueDate:     payload.DueDate,
+		Status:      payload.Status,
+		Notified:    payload.Notified,
 	}
 
 	if err := b.db.Create(&bill).Error; err != nil {
@@ -34,12 +38,11 @@ func (b *billRepository) Create(payload *model.Bill) (*model.Bill, error) {
 	return &bill, nil
 }
 
-func (b *billRepository) Get(id string) (*model.Bill, error) {
-	bill := model.Bill{}
+func (b *billRepository) List(id string) ([]*model.Bill, error) {
+	bills := []*model.Bill{}
 
-	if err := b.db.Where("WHERE id = ? ", id).Find(&bill).Error; err != nil {
+	if err := b.db.Model(&model.Bill{}).Where(constants.WHERE_BY_USER_ID, id).Preload("BillDetails").Find(&bills).Error; err != nil {
 		return nil, err
 	}
-
-	return &bill, nil
+	return bills, nil
 }

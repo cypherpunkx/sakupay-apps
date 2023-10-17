@@ -77,7 +77,7 @@ func ValidationMiddleware() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			c.Abort()
 		} else {
-			c.Set("validatedInput", input)
+			c.Set("user", input)
 			c.Next()
 		}
 	}

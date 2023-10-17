@@ -16,7 +16,7 @@ type billDetailsRepository struct {
 func (b *billRepository) GetBillDetailsById(id string) (*model.BillDetails, error) {
 	billDetails := model.BillDetails{}
 
-	if err := b.db.Where("WHERE user_id = ? ", id).Find(&billDetails).Error; err != nil {
+	if err := b.db.Where("bill_id = ? ", id).Find(&billDetails).Error; err != nil {
 		return nil, err
 	}
 

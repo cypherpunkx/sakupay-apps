@@ -8,5 +8,6 @@ type Card struct {
 	CardNumber     string    `gorm:"type:varchar(255);size:16;not null;unique" json:"cardNumber" binding:"required,numeric,len=16,eq=16"`
 	CardholderName string    `gorm:"type:varchar(255);not null;unique" json:"cardholderName" binding:"required,alpha"`
 	ExpirationDate time.Time `gorm:"type:timestamp;not null" json:"expirationDate" binding:"required,datetime"`
+	Balance        float64   `gorm:"type:float;not null;default:0;check:Balance >= 0" json:"balance"`
 	CVV            string    `gorm:"type:varchar(255);size:3" json:"cvv" binding:"required,numeric,len=3"`
 }

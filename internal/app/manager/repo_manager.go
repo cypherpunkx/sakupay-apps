@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"github.com/sakupay-apps/config"
 	"github.com/sakupay-apps/internal/app/repository"
 )
 
@@ -9,6 +10,8 @@ type RepoManager interface {
 	TransactionRepo() repository.TransactionRepository
 	BillRepo() repository.BillRepository
 	ContactRepo() repository.ContactRepository
+	FileRepo() repository.FileRepository
+	UserPictureRepo() repository.UserPictureRepository
 }
 
 type repoManager struct {
@@ -35,4 +38,12 @@ func (m *repoManager) BillRepo() repository.BillRepository {
 
 func (m *repoManager) ContactRepo() repository.ContactRepository {
 	return repository.NewContactRepository(m.infraManager.Conn())
+}
+
+func (m *repoManager) FileRepo() repository.FileRepository {
+	return repository.NewFileRepository(config.Cfg.File.UserPicturePath)
+}
+
+func (m *repoManager) UserPictureRepo() repository.UserPictureRepository {
+	return repository.NewUserPictureRepository(m.infraManager.Conn())
 }

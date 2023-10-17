@@ -35,6 +35,7 @@ func (cc *ContactController) AddContact(c *gin.Context) {
 		})
 		return
 	}
+
 	data, err := cc.service.RegisterNewContact(&payload)
 
 	if err != nil {
@@ -67,96 +68,102 @@ func (cc *ContactController) AddContact(c *gin.Context) {
 	c.JSON(http.StatusCreated, dto.Response{
 		Code:    http.StatusCreated,
 		Status:  exception.StatusSuccess,
+		Message: "Create Contact",
+		Data:    data,
+	})
+}
+
+func (ctr *ContactController) FindAllContacts(c *gin.Context) {
+	id := c.Param("id")
+
+	data, err := ctr.service.FindAllContactList(id)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
+		Status:  exception.StatusSuccess,
 		Message: "Get All Contacts",
 		Data:    data,
 	})
 }
 
-// func (cc *ContactController) ListHandler(c *gin.Context) {
+func (ctr *ContactController) FindContact(c *gin.Context) {
+	id := c.Params.ByName("id")
+	contactID := c.Params.ByName("contactID")
 
-// 	page, _ := strconv.Atoi(c.Query("page"))
-// 	limit, _ := strconv.Atoi(c.Query("limit"))
-// 	name := c.Query("name")
+	data, err := ctr.service.FindContactByUser(id, contactID)
 
-// 	paginationParam := dto.PaginationParam{
-// 		Page:  page,
-// 		Limit: limit,
-// 	}
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
 
-// 	contact, paging, err := cc.service.FindAllContactList(paginationParam, name)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
 
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	status := map[string]any{
-// 		"code":        200,
-// 		"description": "Get All Data Successfully",
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"status": status,
-// 		"data":   contact,
-// 		"paging": paging,
-// 	})
-// }
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
+		Status:  exception.StatusSuccess,
+		Message: "Get Contact By ID ",
+		Data:    data,
+	})
+}
 
-// func (cc *ContactController) GetHandler(c *gin.Context) {
-// 	id := c.Param("id")
-// 	data, err := cc.service.FindContactById(id)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"status":  http.StatusOK,
-// 		"message": "Success Get Contact by Id",
-// 		"data":    data,
-// 	})
-// 	return
+func (ctr *ContactController) DeleteContact(c *gin.Context) {
+	id := c.Params.ByName("id")
+	contactID := c.Params.ByName("contactID")
 
-// }
+	data, err := ctr.service.DeleteContactByUser(id, contactID)
 
-// func (cc *ContactController) DeleteHandler(c *gin.Context) {
-// 	id := c.Param("id")
-// 	data, err := cc.service.DeleteContact(id)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"status":  http.StatusOK,
-// 		"message": "Success Delete Contact",
-// 		"data":    data,
-// 	})
-// }
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Code:    http.StatusInternalServerError,
+				Status:  exception.StatusInternalServer,
+				Message: gorm.ErrRecordNotFound.Error(),
+			})
+			return
+		}
 
-// func (cc *ContactController) UpdateHandler(c *gin.Context) {
-// 	id := c.Param("id")
-// 	payload := model.Contact{}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Status:  exception.StatusInternalServer,
+			Message: err.Error(),
+		})
+		return
+	}
 
-// 	if err := c.ShouldBindJSON(&payload); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	data, err := cc.service.UpdateContact(id, &payload)
-
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	c.JSON(http.StatusCreated, gin.H{
-// 		"status":  http.StatusCreated,
-// 		"message": "Success Updated Contact",
-// 		"data":    data,
-// 	})
-// }
+	c.JSON(http.StatusOK, dto.Response{
+		Code:    http.StatusOK,
+		Status:  exception.StatusSuccess,
+		Message: "Delete Contact By ID ",
+		Data:    data,
+	})
+}

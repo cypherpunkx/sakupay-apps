@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-faker/faker/v4"
 	_ "github.com/lib/pq"
 	"github.com/sakupay-apps/internal/model"
 	"gorm.io/driver/postgres"
@@ -34,7 +35,38 @@ func InitDB() {
 }
 
 func SyncDB() {
+	if err := DB.Migrator().DropTable(&model.User{}, &model.Bill{}, &model.BillDetails{}, &model.Card{}, &model.Contact{}, &model.Transaction{}, &model.Wallet{}); err != nil {
+		fmt.Print(err.Error())
+	}
+
 	if err := DB.AutoMigrate(&model.User{}, &model.Bill{}, &model.BillDetails{}, &model.Card{}, &model.Contact{}, &model.Transaction{}, &model.Wallet{}); err != nil {
 		fmt.Print(err.Error())
+	}
+
+	users := UserSeeder(5)
+
+	if err := DB.Create(&users).Error; err != nil {
+		fmt.Println(err.Error())
+	}
+
+}
+
+func UserSeeder(count int) []*model.User {
+	users := []*model.User{}
+	for i := 0; i < count; i++ {
+		users = append(users, GenerateUser())
+	}
+
+	return users
+}
+
+func GenerateUser() *model.User {
+	return &model.User{
+		Username:    faker.Username(),
+		Email:       faker.Email(),
+		Password:    "admin",
+		FirstName:   faker.FirstName(),
+		LastName:    faker.LastName(),
+		PhoneNumber: faker.Phonenumber(),
 	}
 }

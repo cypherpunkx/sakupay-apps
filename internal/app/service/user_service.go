@@ -66,7 +66,7 @@ func (s *userService) RegisterNewUser(payload *model.User) (*dto.UserResponse, e
 		Email:            user.Email,
 		Password:         user.Password,
 		FirstName:        user.FirstName,
-		LastName:         user.Username,
+		LastName:         user.LastName,
 		PhoneNumber:      user.PhoneNumber,
 		Wallet:           user.Wallet,
 		RegistrationDate: user.RegistrationDate,

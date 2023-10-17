@@ -12,9 +12,8 @@ type ContactService interface {
 	RegisterNewContact(payload *model.Contact) (*dto.ContactResponse, error)
 	FindAllContactList(id string) ([]*dto.ContactResponse, error)
 	FindContactById(id string) (*dto.ContactResponse, error)
-	// UpdateContact(id string, payload *model.Contact) (*model.Contact, error)
-	// DeleteContact(id string) (*model.Contact, error)
-	// FindAllContact(requesPaging dto.PaginationParam, byNameEmpl string) ([]*model.Contact, *dto.Paging, error)
+	FindContactByUser(userID, contactID string) (*dto.ContactResponse, error)
+	DeleteContactByUser(userID, contactID string) (*dto.ContactResponse, error)
 }
 
 type contactService struct {
@@ -74,7 +73,7 @@ func (s *contactService) FindAllContactList(id string) ([]*dto.ContactResponse, 
 		return nil, gorm.ErrRecordNotFound
 	}
 
-	contacts, err := s.contactRepo.List()
+	contacts, err := s.contactRepo.ListContacts(user.ID)
 
 	if err != nil {
 		return nil, gorm.ErrRecordNotFound
@@ -122,23 +121,68 @@ func (s *contactService) FindContactById(id string) (*dto.ContactResponse, error
 	return &contactResponse, err
 }
 
-// func (s *contactService) DeleteContact(id string) (*dto.ContactResponse, error) {
-// 	contact, err := s.contactRepo.Get(id)
+func (s *contactService) FindContactByUser(userID, contactID string) (*dto.ContactResponse, error) {
 
-// 	if err != nil {
-// 		return nil,gorm.ErrRecordNotFound
-// 	}
+	user, err := s.userRepo.Get(userID)
 
-// 	user
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
 
-// 	contactResponse := dto.ContactResponse{
-// 		ID: contact.ID,
-// 		User: ,
-// 	}
+	contact, err := s.contactRepo.Get(contactID)
 
-// 	return
-// }
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
 
-// func (c *contactService) FindAllContact(requesPaging dto.PaginationParam, byNameEmpl string) ([]*model.Contact, *dto.Paging, error) {
-// 	return c.repo.Paging(requesPaging, byNameEmpl)
-// }
+	userContact, err := s.contactRepo.GetContactByID(user.ID, contact.ID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	contactResponse := dto.ContactResponse{
+		ID:           userContact.ID,
+		User:         *user,
+		PhoneNumber:  userContact.PhoneNumber,
+		Relationship: userContact.PhoneNumber,
+		IsFavorite:   userContact.IsFavorite,
+	}
+
+	return &contactResponse, err
+}
+
+func (s *contactService) DeleteContactByUser(userID, contactID string) (*dto.ContactResponse, error) {
+
+	user, err := s.userRepo.Get(userID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	contact, err := s.contactRepo.Get(contactID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	userContact, err := s.contactRepo.DeleteContactByID(user.ID, contact.ID)
+
+	if err != nil {
+		return nil, exception.ErrFailedDelete
+	}
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	contactResponse := dto.ContactResponse{
+		ID:           userContact.ID,
+		User:         *user,
+		PhoneNumber:  userContact.PhoneNumber,
+		Relationship: userContact.PhoneNumber,
+		IsFavorite:   userContact.IsFavorite,
+	}
+
+	return &contactResponse, err
+}

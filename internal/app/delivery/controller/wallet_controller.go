@@ -53,7 +53,7 @@ func (w *WalletController) CreateHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, dto.Response{
 		Code:    http.StatusCreated,
 		Status:  exception.StatusSuccess,
-		Message: "Get Wallet",
+		Message: "Create Wallet",
 		Data:    data,
 	})
 }

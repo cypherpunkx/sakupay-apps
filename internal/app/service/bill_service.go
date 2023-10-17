@@ -1,15 +1,18 @@
 package service
 
 import (
+	"time"
+
 	"github.com/sakupay-apps/internal/app/repository"
 	"github.com/sakupay-apps/internal/model"
 	"github.com/sakupay-apps/internal/model/dto"
-	"github.com/sakupay-apps/utils/common"
 	"github.com/sakupay-apps/utils/exception"
+	"gorm.io/gorm"
 )
 
 type BillService interface {
 	CreateNewBill(payload *model.Bill) (*dto.BillResponse, error)
+	GetAllBills(id string) ([]*dto.BillResponse, error)
 }
 
 type billService struct {
@@ -30,42 +33,55 @@ func (b *billService) CreateNewBill(payload *model.Bill) (*dto.BillResponse, err
 	user, err := b.userRepo.Get(payload.UserID)
 
 	if err != nil {
-		return nil, exception.ErrNotFound
+		return nil, gorm.ErrRecordNotFound
 	}
 
-	billdetails := []model.BillDetails{}
-
-	for _, billdetail := range payload.Billdetails {
-
-		billdetail.ID = common.GenerateUUID()
-		billdetail.BillID = payload.ID
-
-		billdetails = append(billdetails, billdetail)
-	}
-
-	payload.Billdetails = billdetails
+	payload.DueDate = time.Now()
 
 	bill, err := b.billRepo.Create(payload)
 
 	if err != nil {
 		return nil, exception.ErrFailedCreate
 	}
-	billResponse := dto.BillResponse{
 
-		ID: bill.ID,
-		User: model.User{
-			ID:          user.ID,
-			Username:    user.Username,
-			Email:       user.Email,
-			Password:    user.Password,
-			FirstName:   user.FirstName,
-			LastName:    user.LastName,
-			PhoneNumber: user.PhoneNumber,
-		},
+	billResponse := dto.BillResponse{
+		ID:          bill.ID,
+		User:        *user,
 		BillDetails: bill.Billdetails,
 		Total:       bill.Total,
 		DueDate:     bill.DueDate,
 	}
 
 	return &billResponse, nil
+}
+
+func (s *billService) GetAllBills(id string) ([]*dto.BillResponse, error) {
+	user, err := s.userRepo.Get(id)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	bills, err := s.billRepo.List(user.ID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	billResponses := []*dto.BillResponse{}
+
+	for _, bill := range bills {
+		if bill.UserID == user.ID {
+			billResponses = append(billResponses, &dto.BillResponse{
+				ID:          bill.ID,
+				User:        *user,
+				BillDetails: bill.Billdetails,
+				Total:       bill.Total,
+				DueDate:     bill.DueDate,
+			})
+		}
+	}
+
+	return billResponses, nil
+
 }
