@@ -27,6 +27,8 @@ func SetupRouter(router *gin.Engine) error {
 	billController := controller.NewBillController(repoManager.BillService())
 	// Contact Controller
 	contactController := controller.NewContactController(repoManager.ContactService())
+	// Card Controller
+	cardController := controller.NewCardController(repoManager.CardService())
 
 	v1 := router.Group("/api/v1")
 	{
@@ -111,6 +113,8 @@ func SetupRouter(router *gin.Engine) error {
 				// Bill
 				users.POST("/:id/bills", billController.CreateBill)
 				users.GET("/:id/bills", billController.FindAllBills)
+
+				users.POST("/:id/cards", cardController.AddCard)
 			}
 
 			// go func() {

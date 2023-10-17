@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/sakupay-apps/internal/model"
 	"github.com/sakupay-apps/internal/model/dto"
 	"github.com/sakupay-apps/utils/common"
@@ -35,6 +37,7 @@ func (r *userRepository) Create(payload *model.User) (*model.User, error) {
 		FirstName:   payload.FirstName,
 		LastName:    payload.LastName,
 		PhoneNumber: payload.PhoneNumber,
+		
 		Wallet: model.Wallet{
 			ID:      common.GenerateUUID(),
 			Name:    "sakupay",
@@ -43,8 +46,10 @@ func (r *userRepository) Create(payload *model.User) (*model.User, error) {
 	}
 
 	if err := r.db.Create(&user).Error; err != nil {
-		return nil, err
+		return nil,err
+
 	}
+	fmt.Println(user)
 
 	return &user, nil
 }
