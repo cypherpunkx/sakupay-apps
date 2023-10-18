@@ -99,7 +99,7 @@ func (r *contactRepository) Get(id string) (*model.Contact, error) {
 func (r *contactRepository) GetContactByID(userID, contactID string) (*model.Contact, error) {
 	var contact model.Contact
 
-	if err := r.db.Where("user_id = ? AND id = ?").First(&contact).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND id = ?", userID, contactID).First(&contact).Error; err != nil {
 		return nil, err
 	}
 
