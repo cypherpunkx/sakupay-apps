@@ -50,47 +50,95 @@ type MockTransactionRepository struct {
 	mock.Mock
 }
 
-func (r *MockTransactionRepository) Get(id string) (*model.Transaction, error) {
-	args := r.Called(id)
-	return args.Get(0).(*model.Transaction), args.Error(1)
+// Get implements repository.TransactionRepository.
+func (*MockTransactionRepository) Get(id string) (*model.Transaction, error) {
+	return nil, nil
 }
 
-func (r *MockTransactionRepository) GetTransaction(userID string, transactionID string) (*model.Transaction, error) {
-	args := r.Called(userID, transactionID)
-	return args.Get(0).(*model.Transaction), args.Error(1)
+// GetTransaction implements repository.TransactionRepository.
+func (*MockTransactionRepository) GetTransaction(userID string, transactionID string) (*model.Transaction, error) {
+	return nil, nil
 }
 
+// List implements repository.TransactionRepository.
 func (*MockTransactionRepository) List() ([]*model.Transaction, error) {
 	return nil, nil
 }
 
-func (r *MockTransactionRepository) ListTransactions(id string) ([]*model.Transaction, error) {
-	args := r.Called(id)
-	return args.Get(0).([]*model.Transaction), args.Error(1)
+// ListTransactions implements repository.TransactionRepository.
+func (*MockTransactionRepository) ListTransactions(id string) ([]*model.Transaction, error) {
+	return nil, nil
 }
 
-func (r *MockTransactionRepository) Create(payload *model.Transaction) (*model.Transaction, error) {
-	args := r.Called(payload)
-	return args.Get(0).(*model.Transaction), args.Error(1)
+// CreateDepositTransaction implements repository.TransactionRepository.
+func (*MockTransactionRepository) CreateDepositTransaction(payload *model.Transaction, cardID string) (*model.Transaction, error) {
+	return nil, nil
+}
+
+// CreateSendTransaction implements repository.TransactionRepository.
+func (*MockTransactionRepository) CreateSendTransaction(payload *model.Transaction, friendID string) (*model.Transaction, error) {
+	return nil, nil
+}
+
+// CreateWitdrawTransaction implements repository.TransactionRepository.
+func (*MockTransactionRepository) CreateWitdrawTransaction(payload *model.Transaction, cardID string) (*model.Transaction, error) {
+	return nil, nil
+}
+
+type MockCardRepository struct {
+	mock.Mock
+}
+
+func (*MockCardRepository) Create(payload *model.Card) (*model.Card, error) {
+	return nil, nil
+}
+
+func (*MockCardRepository) ListCards(id string) ([]*model.Card, error) {
+	return nil, nil
+}
+
+func (*MockCardRepository) Paging(requestPaging dto.PaginationParam, queries ...string) ([]*model.Card, *dto.Paging, error) {
+	return nil, nil, nil
+}
+
+func (*MockCardRepository) Get(id string) (*model.Card, error) {
+	return nil, nil
+}
+
+func (*MockCardRepository) GetCardUserID(userID, cardID string) (*model.Card, error) {
+	return nil, nil
+}
+
+func (*MockCardRepository) Delete(id string) (*model.Card, error) {
+	return nil, nil
+}
+
+func (*MockCardRepository) DeleteCardID(userID, cardID string) (*model.Card, error) {
+	return nil, nil
 }
 
 func TestCreateNewTransaction(t *testing.T) {
 	mockUserRepo := &MockUserRepository{}
 	mockTransactionRepo := &MockTransactionRepository{}
-	service := NewTransactionService(mockTransactionRepo, mockUserRepo)
+	mockCardRepo := &MockCardRepository{}
+
+	service := NewTransactionService(mockTransactionRepo, mockUserRepo, mockCardRepo)
 
 	mockUser := &model.User{}
 	mockUserRepo.On("Get", mock.Anything).Return(mockUser, nil)
 
 	mockTransaction := &model.Transaction{}
 	mockTransactionRepo.On("Create", mock.Anything).Return(mockTransaction, nil)
+	mockCard := &model.Card{}
+	mockTransactionRepo.On("Get", mock.Anything).Return(mockTransaction, nil)
 
 	payload := &model.Transaction{}
-	response, err := service.CreateNewTransaction(payload)
+	response, err := service.DepositMoney(payload, mockCard.ID)
 
 	assert.NotNil(t, response)
 	assert.Nil(t, err)
 
 	mockUserRepo.AssertExpectations(t)
 	mockTransactionRepo.AssertExpectations(t)
+	mockCardRepo.AssertExpectations(t)
 }

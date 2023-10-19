@@ -14,6 +14,11 @@ type mockCardRepository struct {
 	mock.Mock
 }
 
+// GetCardUserID implements repository.CardRepository.
+func (*mockCardRepository) GetCardUserID(userID string, cardID string) (*model.Card, error) {
+	panic("unimplemented")
+}
+
 func (*mockCardRepository) Delete(id string) (*model.Card, error) {
 	return nil, nil
 }

@@ -29,11 +29,10 @@ func NewContactService(contactRepo repository.ContactRepository, userRepo reposi
 }
 
 func (s *contactService) RegisterNewContact(payload *model.Contact) (*dto.ContactResponse, error) {
-
 	contacts, err := s.contactRepo.List()
 
 	if err != nil {
-		return nil, exception.ErrFailedCreate
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	for _, contact := range contacts {
