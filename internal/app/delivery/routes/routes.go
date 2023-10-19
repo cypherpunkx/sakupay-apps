@@ -6,11 +6,12 @@ import (
 	"github.com/sakupay-apps/internal/app/delivery/controller"
 	"github.com/sakupay-apps/internal/app/delivery/middleware"
 	"github.com/sakupay-apps/internal/app/manager"
+	"github.com/sirupsen/logrus"
 )
 
 func SetupRouter(router *gin.Engine) error {
 
-	// router.Use(middleware.LogRequestMiddleware(logrus.New()))
+	router.Use(middleware.LogRequestMiddleware(logrus.New()))
 
 	infraManager := manager.NewInfraManager(config.Cfg)
 	serviceManager := manager.NewRepoManager(infraManager)

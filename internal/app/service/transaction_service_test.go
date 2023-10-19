@@ -142,3 +142,4 @@ func TestCreateNewTransaction(t *testing.T) {
 	mockTransactionRepo.AssertExpectations(t)
 	mockCardRepo.AssertExpectations(t)
 }
+

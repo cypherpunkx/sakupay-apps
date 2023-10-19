@@ -24,7 +24,7 @@ func NewContactController(service service.ContactService) *ContactController {
 }
 
 func (cc *ContactController) AddContact(c *gin.Context) {
-	id := c.Params.ByName("id")
+	id := c.Param("id")
 
 	var payload model.Contact
 
