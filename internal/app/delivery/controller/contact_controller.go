@@ -24,11 +24,12 @@ func NewContactController(service service.ContactService) *ContactController {
 }
 
 func (cc *ContactController) AddContact(c *gin.Context) {
-	userID := c.Param("id")
+	id := c.Params.ByName("id")
+
 	var payload model.Contact
 
 	payload.ID = common.GenerateUUID()
-	payload.UserID = userID
+	payload.UserID = id
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
