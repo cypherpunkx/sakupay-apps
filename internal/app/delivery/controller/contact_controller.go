@@ -25,8 +25,11 @@ func NewContactController(service service.ContactService) *ContactController {
 
 func (cc *ContactController) AddContact(c *gin.Context) {
 	var payload model.Contact
+	id := c.Param("id")
 
 	payload.ID = common.GenerateUUID()
+	payload.UserID = id
+
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
 			"code":    http.StatusBadRequest,
