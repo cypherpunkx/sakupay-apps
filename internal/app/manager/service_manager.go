@@ -33,7 +33,7 @@ func (m *serviceManager) AuthService() service.AuthService {
 }
 
 func (m *serviceManager) TransactionService() service.TransactionService {
-	return service.NewTransactionService(m.repoManager.TransactionRepo(), m.repoManager.UserRepo())
+	return service.NewTransactionService(m.repoManager.TransactionRepo(), m.repoManager.UserRepo(), m.repoManager.CardRepo())
 }
 
 func (m *serviceManager) BillService() service.BillService {

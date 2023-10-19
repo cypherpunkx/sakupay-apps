@@ -1,0 +1,136 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Sakupay Apps",
+    "version": "1.0",
+    "description": "OpenAPI For Sakupay RESTful API",
+    "termsOfService": "https://www.sakupay.com",
+    "contact": {
+      "name": "Rafly Mahendra",
+      "email": "raflymhndra@gmail.com",
+      "url": "https://www.sakupay.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://dev.sakupay.com/api/v1",
+      "variables": {
+        "environment": {
+          "description": "Server Environment",
+          "default": "dev",
+          "enum": ["dev", "qa", "prod"]
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/users": {
+      "get": {
+        "summary": "Get All Users",
+        "description": "Get All Users By Default",
+        "parameters": [
+          {
+            "name": "include done",
+            "in": "query",
+            "required": false,
+            "description": "Include Done User in the result",
+            "schema": {
+              "type": "boolean",
+              "nullable": true,
+              "default": false
+            }
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "description": "Filter Users By Username",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {}
+      },
+      "post": {
+        "summary": "Create New User",
+        "description": "Create New User To Database",
+        "responses": {},
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "minLength": 1,
+                    "required": true
+                  },
+                  "email": {
+                    "type": "string",
+                    "writeOnly": false,
+                    "required": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "writeOnly": false,
+                    "required": true
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "writeOnly": false,
+                    "required": true
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "writeOnly": false,
+                    "required": true
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "format": "int32",
+                    "required": true,
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{userID}": {
+        "get": {
+          "summary": "Get User",
+          "description": "Get User By ID",
+          "responses": {},
+          "parameters": [
+            {
+              "name": "include done",
+              "in": "path",
+              "required": true,
+              "description": "Include Done User in the result"
+            }
+          ]
+        },
+        "put": {
+          "summary": "Update User",
+          "description": "Update User By ID",
+          "responses": {},
+          "parameters": [
+            {
+              "name": "userrID",
+              "in": "path",
+              "required": true,
+              "description": "User ID For Update"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

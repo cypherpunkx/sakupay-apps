@@ -18,6 +18,7 @@ type authHeader struct {
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var header authHeader
+		// userOTP := c.PostForm("otp")
 
 		if err := c.ShouldBindHeader(&header); err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{

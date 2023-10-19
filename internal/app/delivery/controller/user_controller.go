@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sakupay-apps/internal/app/service"
@@ -35,6 +36,8 @@ func (ctr *UserController) Registration(c *gin.Context) {
 	payload := model.User{}
 
 	payload.ID = common.GenerateUUID()
+	payload.RegistrationDate = time.Now()
+	payload.LastLogin = time.Now()
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{

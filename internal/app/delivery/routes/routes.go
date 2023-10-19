@@ -51,7 +51,9 @@ func SetupRouter(router *gin.Engine) error {
 				users.GET("/:id/contacts/:contactID", contactController.FindContact)
 				users.DELETE("/:id/contacts/:contactID", contactController.DeleteContact)
 				// Transaction
-				users.POST("/:id/transactions", transactionController.CreateTransaction)
+				users.POST("/:id/transactions/deposit/:cardID", transactionController.Deposit)
+				users.POST("/:id/transactions/send/:userID", transactionController.SendMoney)
+				users.POST("/:id/transactions/withdraw/:cardID", transactionController.WithdrawMoney)
 				users.GET("/:id/transactions", transactionController.FindAllTransactions)
 				users.GET("/:id/transactions/:transactionID", transactionController.FindTransaction)
 				// Bill
@@ -62,24 +64,6 @@ func SetupRouter(router *gin.Engine) error {
 				users.POST("/:id/cards", cardController.AddCard)
 				users.DELETE("/:id/cards/:cardID", cardController.DeleteCard)
 			}
-
-			// go func() {
-			// 	for {
-			// 		time.Sleep(10 * time.Second) // Cek setiap 24 jam
-
-			// 		var bills []model.Bill
-			// 		config.DB.Where("due_date BETWEEN ? AND ?", time.Now(), time.Now().Add(5*time.Minute)).Find(&bills)
-
-			// 		for _, bill := range bills {
-			// 			if !bill.Notified {
-			// 				fmt.Printf("Mengirim pemberitahuan ke %s untuk tagihan %d\n", bill.DueDate, bill.Status)
-			// 				// Di sini, Anda dapat mengirim pemberitahuan melalui email, SMS, atau media komunikasi lainnya.
-			// 				// Atur `bill.Notified = true` setelah pemberitahuan dikirim agar pemberitahuan hanya dikirim sekali.
-			// 			}
-			// 		}
-			// 		fmt.Println("OEKEEKEKEKKEKE")
-			// 	}
-			// }()
 		}
 	}
 

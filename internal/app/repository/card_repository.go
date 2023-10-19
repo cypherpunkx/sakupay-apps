@@ -15,6 +15,7 @@ type CardRepository interface {
 	Paging(requestPaging dto.PaginationParam, queries ...string) ([]*model.Card, *dto.Paging, error)
 	ListCards(id string) ([]*model.Card, error)
 	Get(id string) (*model.Card, error)
+	GetCardUserID(userID, cardID string) (*model.Card, error)
 	Delete(id string) (*model.Card, error)
 	DeleteCardID(userID, cardID string) (*model.Card, error)
 }
@@ -80,6 +81,16 @@ func (cr *cardRepository) Get(id string) (*model.Card, error) {
 	var card model.Card
 
 	if err := cr.db.Where(constants.WHERE_BY_ID, id).First(&card).Error; err != nil {
+		return nil, err
+	}
+
+	return &card, nil
+}
+
+func (cr *cardRepository) GetCardUserID(userID, cardID string) (*model.Card, error) {
+	var card model.Card
+
+	if err := cr.db.Where(constants.WHERE_BY_USER_ID_AND_CARD_ID, userID, cardID).First(&card).Error; err != nil {
 		return nil, err
 	}
 

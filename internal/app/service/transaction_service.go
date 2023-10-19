@@ -11,35 +11,51 @@ import (
 )
 
 type TransactionService interface {
-	CreateNewTransaction(payload *model.Transaction) (*dto.TransactionResponse, error)
+	DepositMoney(payload *model.Transaction, cardID string) (*dto.TransactionResponse, error)
 	TransactionHistory(id string) ([]*dto.TransactionResponse, error)
 	FindTransactionByUser(userID, transactionID string) (*dto.TransactionResponse, error)
+	SendMoney(payload *model.Transaction, friendID string) (*dto.TransactionResponse, error)
+	WithdrawMoneyToCard(payload *model.Transaction, cardID string) (*dto.TransactionResponse, error)
 }
 
 type transactionService struct {
 	transactionRepo repository.TransactionRepository
 	userRepo        repository.UserRepository
+	cardRepo        repository.CardRepository
 }
 
-func NewTransactionService(transactionRepo repository.TransactionRepository, userRepo repository.UserRepository) TransactionService {
+func NewTransactionService(transactionRepo repository.TransactionRepository, userRepo repository.UserRepository, cardRepo repository.CardRepository) TransactionService {
 	return &transactionService{
 		transactionRepo: transactionRepo,
 		userRepo:        userRepo,
+		cardRepo:        cardRepo,
 	}
 }
 
-func (s *transactionService) CreateNewTransaction(payload *model.Transaction) (*dto.TransactionResponse, error) {
+func (s *transactionService) DepositMoney(payload *model.Transaction, cardID string) (*dto.TransactionResponse, error) {
+	if payload.Amount <= 10000 {
+		return nil, exception.ErrMinimalTransaction
+	}
+
 	user, err := s.userRepo.Get(payload.UserID)
 
 	if err != nil {
 		return nil, gorm.ErrRecordNotFound
 	}
 
-	if payload.TransactionType == "send" && payload.Amount > user.Wallet.Balance {
+	card, err := s.cardRepo.Get(cardID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	userCard, err := s.cardRepo.GetCardUserID(user.ID, card.ID)
+
+	if payload.Amount > userCard.Balance {
 		return nil, exception.ErrNotEnoughBalance
 	}
 
-	transaction, err := s.transactionRepo.Create(payload)
+	transaction, err := s.transactionRepo.CreateDepositTransaction(payload, card.ID)
 
 	if err != nil {
 		return nil, exception.ErrFailedCreate
@@ -85,7 +101,6 @@ func (s *transactionService) TransactionHistory(id string) ([]*dto.TransactionRe
 			transactionResponses = append(transactionResponses, &dto.TransactionResponse{
 				ID: transaction.ID,
 				User: model.User{
-					ID:       user.ID,
 					Username: user.Username,
 					Wallet: model.Wallet{
 						Name:    user.Wallet.Name,
@@ -126,17 +141,105 @@ func (s *transactionService) FindTransactionByUser(userID, transactionID string)
 	transactionResponse := dto.TransactionResponse{
 		ID: userTransaction.ID,
 		User: model.User{
-			ID:       user.ID,
 			Username: user.Username,
 			Wallet: model.Wallet{
-				Name:    user.Wallet.Name,
-				Balance: user.Wallet.Balance,
+				Name: user.Wallet.Name,
 			},
 		},
 		TransactionType: userTransaction.TransactionType,
 		Amount:          userTransaction.Amount,
 		Description:     userTransaction.Description,
 		Timestamp:       userTransaction.Timestamp,
+	}
+
+	return &transactionResponse, err
+}
+
+func (s *transactionService) SendMoney(payload *model.Transaction, friendID string) (*dto.TransactionResponse, error) {
+	if payload.Amount <= 10000 {
+		return nil, exception.ErrMinimalTransaction
+	}
+
+	user, err := s.userRepo.Get(payload.UserID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	if payload.Amount > user.Wallet.Balance {
+		return nil, exception.ErrNotEnoughBalance
+	}
+
+	friend, err := s.userRepo.Get(friendID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	transaction, err := s.transactionRepo.CreateSendTransaction(payload, friend.ID)
+
+	if err != nil {
+		return nil, exception.ErrFailedCreate
+	}
+
+	transactionResponse := dto.TransactionResponse{
+		ID: transaction.ID,
+		User: model.User{
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
+		TransactionType: transaction.TransactionType,
+		Amount:          transaction.Amount,
+		Description:     transaction.Description,
+		Timestamp:       time.Now(),
+	}
+
+	return &transactionResponse, err
+}
+
+func (s *transactionService) WithdrawMoneyToCard(payload *model.Transaction, cardID string) (*dto.TransactionResponse, error) {
+	if payload.Amount <= 10000 {
+		return nil, exception.ErrMinimalTransaction
+	}
+
+	user, err := s.userRepo.Get(payload.UserID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	if payload.Amount > user.Wallet.Balance {
+		return nil, exception.ErrNotEnoughBalance
+	}
+
+	card, err := s.cardRepo.Get(cardID)
+
+	if err != nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	transaction, err := s.transactionRepo.CreateWitdrawTransaction(payload, card.ID)
+
+	if err != nil {
+		return nil, exception.ErrFailedCreate
+	}
+
+	transactionResponse := dto.TransactionResponse{
+		ID: transaction.ID,
+		User: model.User{
+			Username: user.Username,
+			Wallet: model.Wallet{
+				Name:    user.Wallet.Name,
+				Balance: user.Wallet.Balance,
+			},
+		},
+		TransactionType: transaction.TransactionType,
+		Amount:          transaction.Amount,
+		Description:     transaction.Description,
+		Timestamp:       time.Now(),
 	}
 
 	return &transactionResponse, err

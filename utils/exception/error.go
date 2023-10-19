@@ -16,6 +16,7 @@ var (
 	ErrPhoneNumberAlreadyExist  = errors.New("phone number already exist")
 	ErrCardNumberAlreadyExist   = errors.New("card number already exist")
 	ErrCvvAlreadyExist          = errors.New("cvv already exist")
+	ErrMinimalTransaction       = errors.New("amount must be greater than 10000")
 	ErrNotEnoughBalance         = errors.New("not enough balance")
 	ErrFailedCreate             = errors.New("failed to create data")
 	ErrFailedCreateToken        = errors.New("failed to create token")
